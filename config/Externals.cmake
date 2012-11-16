@@ -11,3 +11,7 @@ endif()
 if(ENABLE_V8)
   include(V8)
 endif()
+
+if(ENABLE_SWIG)
+  include(SwigJS)
+endif()
