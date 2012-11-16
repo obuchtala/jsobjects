@@ -4,7 +4,7 @@ include(BoostMinimal)
 include(GTest-1.6)
 include(RapidJson)
 
-if(ENABLE_JAVASCRIPT_CORE)
+if(ENABLE_JSC)
   include(JavaScriptCore)
 endif()
 

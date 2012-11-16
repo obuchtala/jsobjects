@@ -4,7 +4,7 @@ include_directories(
   ${RAPIDJSON_INCLUDE_DIRS}
 )
 
-add_library(jsobjects_cpp STATIC
+add_library(jsobjects_cpp ${LIBRARY_TYPE}
   ${PROJECT_SOURCE_DIR}/include/jsobjects.hpp
   ${PROJECT_SOURCE_DIR}/include/jsobjects_cpp.hpp
   jsobjects_cpp.cxx
