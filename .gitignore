@@ -1,2 +1,4 @@
 /build*
 /ext
+.kdev4
+*.kdev4
