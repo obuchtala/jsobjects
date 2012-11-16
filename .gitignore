@@ -2,3 +2,5 @@
 /ext
 .kdev4
 *.kdev4
+example_info.h
+examples/swig/*/*_wrap.cxx
