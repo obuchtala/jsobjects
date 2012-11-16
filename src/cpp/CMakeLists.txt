@@ -1,5 +1,7 @@
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
+  ${BOOST_INCLUDE_DIRS}
+  ${RAPIDJSON_INCLUDE_DIRS}
 )
 
 add_library(jsobjects_cpp STATIC

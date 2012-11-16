@@ -1,10 +1,10 @@
+set(DOWNLOAD_DIR ${EXTERNALS_DIR}/boost)
 
 if (DOWNLOAD_EXTERNALS)
 
   # Configure boost
   # ---------------
   # Note: a script is used to checkout a quasi minimal version
-  set(DOWNLOAD_DIR ${EXTERNALS_DIR}/boost)
 
   ExternalProject_Add(boost
     DOWNLOAD_COMMAND svn co --depth files http://svn.boost.org/svn/boost/tags/release/Boost_1_50_0/boost
@@ -17,8 +17,6 @@ if (DOWNLOAD_EXTERNALS)
     INSTALL_COMMAND "" # skip install
   )
 
-else ()
-
-  set(BOOST_INCLUDE_DIRS ${EXTERNALS_DIR}/boost)
-
 endif()
+
+set(BOOST_INCLUDE_DIRS ${DOWNLOAD_DIR})

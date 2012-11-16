@@ -5,6 +5,9 @@ include_directories(
   ${jsobjects_INCLUDE_DIRS}
 )
 
+message("HAAAAAAAAAAAAAAAAA: " + ${GTEST_LIB_DIRS})
+message("HAAAAAAAAAAAAAAAAA: " + ${GTEST_LIBS})
+
 link_directories(
   ${GTEST_LIB_DIRS}
 )
@@ -22,4 +25,3 @@ add_test(
   NAME jsobjects.cpp.unit
   COMMAND $<TARGET_FILE:jsobjects.cpp.unit>
 )
-
