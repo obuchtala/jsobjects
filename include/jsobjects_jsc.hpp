@@ -1,4 +1,4 @@
-#include "jsobjects.h"
+#include "jsobjects.hpp"
 
 #include <JavaScriptCore/JavaScript.h>
 #include <assert.h>
@@ -86,7 +86,7 @@ public:
 
   virtual void set(const std::string& key, JSValuePtr val) {
     JSStringRef jskey = JSStringCreateWithUTF8CString(key.c_str());
-    JSObjectSetProperty(context, object, jskey, static_cast<JSValueJSC*>(val.get())->value, kJSPropertyAttributeNone, /* JSValueRef *exception */ 0);
+    JSObjectSetProperty(context, object, jskey, static_cast<JSValueJSC*>(JSOBJECTS_PTR_GET(val))->value, kJSPropertyAttributeNone, /* JSValueRef *exception */ 0);
     JSStringRelease(jskey);
   }
 
@@ -125,7 +125,7 @@ public:
   }
 
   virtual void setAt(unsigned int index, JSValuePtr val) {
-    JSObjectSetPropertyAtIndex(context, object, index, static_cast<JSValueJSC*>(val.get())->value, /* JSValueRef *exception */ 0);
+    JSObjectSetPropertyAtIndex(context, object, index, static_cast<JSValueJSC*>(JSOBJECTS_PTR_GET(val))->value, /* JSValueRef *exception */ 0);
   };
 
   virtual void setAt(unsigned int index, const std::string& val) {
@@ -148,3 +148,43 @@ public:
     return length;
   }
 };
+
+#ifdef USE_BOOST_SHARED_PTR
+
+#define JSOBJ_JSC_PTR_CAST(type, obj) boost::dynamic_cast< type >(obj)
+
+#else
+
+#define JSOBJ_JSC_PTR_CAST(type, obj) dynamic_cast< type *> ( (JSValueJSC*) obj)
+
+#endif
+
+
+/*static*/ JSArrayPtr JSValue::asArray(JSValuePtr val) {
+  assert(val->getType() == Array);
+  JSArrayPtr arrPtr = JSOBJ_JSC_PTR_CAST(JSArray, val);
+  return arrPtr;
+}
+
+/*static*/ JSObjectPtr JSValue::asObject(JSValuePtr val) {
+  assert(val->getType() == Object || val->getType() == Array);
+  JSObjectPtr objPtr = JSOBJ_JSC_PTR_CAST(JSObject, val);
+  return objPtr;
+}
+
+/*static*/ JSObjectPtr JSValue::asObject(JSArrayPtr arr) {
+  JSObjectPtr objPtr = JSOBJ_JSC_PTR_CAST(JSObject, arr);
+  return objPtr;
+}
+
+/*static*/ JSValuePtr JSValue::asValue(JSArrayPtr arr) {
+  JSValuePtr valPtr = JSOBJ_JSC_PTR_CAST(JSValue, arr);
+  return valPtr;
+}
+
+/*static*/ JSValuePtr JSValue::asValue(JSObjectPtr obj) {
+  JSValuePtr valPtr = JSOBJ_JSC_PTR_CAST(JSValue, obj);
+  return valPtr;
+}
+  
+#undef JSOBJ_JSC_PTR_CAST

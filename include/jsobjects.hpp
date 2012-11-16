@@ -3,17 +3,30 @@
 
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
+#include <assert.h>
 
 typedef std::vector<std::string> StrVector;
 
 class JSValue;
-typedef boost::shared_ptr<JSValue> JSValuePtr;
 class JSObject;
-typedef boost::shared_ptr<JSObject> JSObjectPtr;
 class JSArray;
-typedef boost::shared_ptr<JSArray> JSArrayPtr;
+
+typedef JSValue* JSValuePtr;
+typedef JSObject* JSObjectPtr;
+typedef JSArray* JSArrayPtr;
+
+#ifdef USE_BOOST_SHARED_PTR
+
+#define JSOBJECTS_PTR_TYPE(type) boost::shared_ptr< type >
+#define JSOBJECTS_PTR_GET(val) val.get()
+
+#else
+
+#define JSOBJECTS_PTR_TYPE(type) type*
+#define JSOBJECTS_PTR_GET(val) val
+
+#endif
 
 class JSValue {
 
@@ -28,13 +41,13 @@ public:
     Null,
     Undefined
   };
-    
+
 public:
-  
+
   virtual std::string asString() = 0;
 
   virtual double asDouble() = 0;
-  
+
   virtual bool asBool() = 0;
 
   virtual JSValueType getType() = 0;
@@ -42,33 +55,16 @@ public:
   inline int asInteger() {
     return static_cast<int>(asDouble());
   };
-  
-  static JSArrayPtr asArray(JSValuePtr val) {
-    assert(val->getType() == Array);
-    JSArrayPtr arrPtr = boost::dynamic_pointer_cast<JSArray>(val);
-    return arrPtr;
-  }
 
-  static JSObjectPtr asObject(JSValuePtr val) {
-    assert(val->getType() == Object || val->getType() == Array);
-    JSObjectPtr objPtr = boost::dynamic_pointer_cast<JSObject>(val);
-    return objPtr;
-  }
+  static inline JSArrayPtr asArray(JSValuePtr val);
 
-  static JSObjectPtr asObject(JSArrayPtr arr) {
-    JSObjectPtr objPtr = boost::dynamic_pointer_cast<JSObject>(arr);
-    return objPtr;
-  }
+  static inline JSObjectPtr asObject(JSValuePtr val);
 
-  static JSValuePtr asValue(JSArrayPtr arr) {
-    JSValuePtr valPtr = boost::dynamic_pointer_cast<JSValue>(arr);
-    return valPtr;
-  }
+  static inline JSObjectPtr asObject(JSArrayPtr arr);
 
-  static JSValuePtr asValue(JSObjectPtr obj) {
-    JSValuePtr valPtr = boost::dynamic_pointer_cast<JSValue>(obj);
-    return valPtr;
-  }
+  static inline JSValuePtr asValue(JSArrayPtr arr);
+
+  static inline JSValuePtr asValue(JSObjectPtr obj);
 
   inline bool isNull() {
    return(getType() == JSValue::Null);
@@ -77,7 +73,7 @@ public:
   inline bool isUndefined()  {
    return(getType() == JSValue::Undefined);
   }
-  
+
   inline bool isString() {
    return(getType() == JSValue::String);
   }
@@ -97,7 +93,7 @@ public:
   inline bool isArray() {
    return(getType() == JSValue::Array);
   }
-  
+
 };
 
 class JSObject {
@@ -119,11 +115,11 @@ public:
   virtual StrVector getKeys() = 0;
 
   inline void set(const std::string& key, JSArrayPtr val) {
-    set(key, boost::dynamic_pointer_cast<JSValue>(val));
+    set(key, JSValue::asValue(val));
   };
 
   inline void set(const std::string& key, JSObjectPtr val) {
-    set(key, boost::dynamic_pointer_cast<JSValue>(val));
+    set(key, JSValue::asValue(val));
   };
 
 };
@@ -147,11 +143,11 @@ public:
   virtual void setAt(unsigned int index, double val) = 0;
 
   inline void setAt(unsigned int index, JSArrayPtr val) {
-    setAt(index, boost::dynamic_pointer_cast<JSValue>(val));
+    setAt(index, JSValue::asValue(val));
   };
 
   inline void set(unsigned int index, JSObjectPtr val) {
-    setAt(index, boost::dynamic_pointer_cast<JSValue>(val));
+    setAt(index, JSValue::asValue(val));
   };
 
 };
@@ -172,7 +168,7 @@ public:
   virtual JSObjectPtr newObject() = 0;
 
   virtual JSArrayPtr newArray(unsigned int length) = 0;
-  
+
   virtual JSValuePtr null() = 0;
 
   virtual JSValuePtr undefined() = 0;
@@ -186,16 +182,19 @@ public:
 template <typename A>
 class JSVoidFunction {
 public:
-  typedef typename boost::shared_ptr< JSVoidFunction<A> > Ptr;
+  typedef JSVoidFunction<A> _JSVoidFunction;
+  typedef JSOBJECTS_PTR_TYPE(_JSVoidFunction) Ptr;
 
   virtual void call(A arg) = 0;
 };
 
 template <typename R, typename A>
 class JSFunction {
+
 public:
-  typedef typename boost::shared_ptr<JSFunction<R, A> > Ptr;
-  
+  typedef JSFunction<R,A> _JSFunctionType;
+  typedef JSOBJECTS_PTR_TYPE(_JSFunctionType) Ptr;
+
   virtual R call(A arg) = 0;
 };
 

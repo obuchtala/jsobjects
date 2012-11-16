@@ -1,4 +1,4 @@
-#include "jsobjects.h"
+#include "jsobjects.hpp"
 
 #include <v8.h>
 #include <assert.h>
@@ -85,11 +85,15 @@ public:
   }
 
   virtual void set(const std::string& key, JSValuePtr val) {
-    object->Set(v8::String::New(key.c_str()), static_cast<JSValueV8*>(val.get())->value);
+    object->Set(v8::String::New(key.c_str()), static_cast<JSValueV8*>(JSOBJECTS_PTR_GET(val))->value);
   }
 
   virtual void set(const std::string& key, const std::string& val) {
     object->Set(v8::String::New(key.c_str()), v8::String::New(val.c_str()));
+  }
+
+  virtual void set(const std::string& key, const char* val) {
+    object->Set(v8::String::New(key.c_str()), v8::String::New(val));
   }
 
   virtual void set(const std::string& key, bool val) {
@@ -128,8 +132,12 @@ public:
   }
 
   virtual void setAt(unsigned int index, JSValuePtr val) {
-    array->Set(index, static_cast<JSValueV8*>(val.get())->value);
+    array->Set(index, static_cast<JSValueV8*>(JSOBJECTS_PTR_GET(val))->value);
   };
+
+  virtual void setAt(unsigned int index, const char *val) {
+    array->Set(index, v8::String::New(val));
+  }
 
   virtual void setAt(unsigned int index, const std::string& val) {
     array->Set(index, v8::String::New(val.c_str()));
@@ -186,3 +194,43 @@ JSObjectPtr CreateJSObjectV8(v8::Handle<v8::Object> obj) {
 JSArrayPtr CreateJSArrayV8(v8::Handle<v8::Array> arr) {
   return JSArrayPtr(new JSArrayV8(arr));
 }
+
+#ifdef USE_BOOST_SHARED_PTR
+
+#define JSOBJ_V8_PTR_CAST(type, obj) boost::dynamic_cast< type >(obj)
+
+#else
+
+#define JSOBJ_V8_PTR_CAST(type, obj) dynamic_cast< type *> ( (JSValueV8*) obj)
+
+#endif
+
+
+/*static*/ JSArrayPtr JSValue::asArray(JSValuePtr val) {
+  assert(val->getType() == Array);
+  JSArrayPtr arrPtr = JSOBJ_V8_PTR_CAST(JSArray, val);
+  return arrPtr;
+}
+
+/*static*/ JSObjectPtr JSValue::asObject(JSValuePtr val) {
+  assert(val->getType() == Object || val->getType() == Array);
+  JSObjectPtr objPtr = JSOBJ_V8_PTR_CAST(JSObject, val);
+  return objPtr;
+}
+
+/*static*/ JSObjectPtr JSValue::asObject(JSArrayPtr arr) {
+  JSObjectPtr objPtr = JSOBJ_V8_PTR_CAST(JSObject, arr);
+  return objPtr;
+}
+
+/*static*/ JSValuePtr JSValue::asValue(JSArrayPtr arr) {
+  JSValuePtr valPtr = JSOBJ_V8_PTR_CAST(JSValue, arr);
+  return valPtr;
+}
+
+/*static*/ JSValuePtr JSValue::asValue(JSObjectPtr obj) {
+  JSValuePtr valPtr = JSOBJ_V8_PTR_CAST(JSValue, obj);
+  return valPtr;
+}
+  
+#undef JSOBJ_JSC_PTR_CAST
