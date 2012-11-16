@@ -16,7 +16,7 @@ void JSValueCpp_toJSON(Writer< GenericStringBuffer< UTF8<char> > > &w, JSValuePt
 
 void JSValueCpp_toJSON_Object(Writer< GenericStringBuffer< UTF8<char> > > &w, JSObjectPtr obj) {
   w.StartObject();
-  const StrVector &keys = obj->getKeys();  
+  const StrVector &keys = obj->getKeys();
   for(StrVector::const_iterator it = keys.begin(); it != keys.end(); ++it) {
     const std::string &key = *it;
     w.String(key.c_str());
@@ -61,31 +61,31 @@ void JSValueCpp_toJSON(Writer< GenericStringBuffer< UTF8<char> > > &w, JSValuePt
 }
 
 class JSObjectReaderHandler {
-  
+
 private:
-  
+
   typedef std::pair<std::string, JSValuePtr> ObjEntry;
 
   struct StackElem {
     JSValue::JSValueType type;
-    
+
     std::vector<ObjEntry> obj;
     const char* key;
   };
 
 public:
-  
-  JSObjectReaderHandler(JSContextCpp& context): context(context) {}    
+
+  JSObjectReaderHandler(JSContextCpp& context): context(context), root(0) {}
 
   void append(JSValuePtr val) {
     StackElem *tos = objStack.empty()? 0 : objStack.top();
-    
+
     if(tos == 0) {
-      assert(root.get() == 0);
+      assert(JSOBJECTS_PTR_GET(root) == 0);
       root = val;
     } else if(tos->type == JSValue::Object) {
       assert(tos->key != 0);
-      tos->obj.push_back(ObjEntry(tos->key, val));      
+      tos->obj.push_back(ObjEntry(tos->key, val));
       tos->key = 0;
     } else if (tos->type == JSValue::Array) {
       tos->obj.push_back(ObjEntry("", val));
@@ -94,38 +94,38 @@ public:
       assert(false);
     }
   }
-  
+
   // what to do?
   void Default() {}
-  
+
   void Null() {
     append(context.null());
   }
-  
-  void Bool(bool b) { 
+
+  void Bool(bool b) {
     append(context.newBoolean(b));
   }
 
   void Int(int i) {
     append(context.newNumber(i));
   }
-  
-  void Uint(unsigned i) { 
-    append(context.newNumber(i));
-  }
-  
-  void Int64(int64_t i) { 
+
+  void Uint(unsigned i) {
     append(context.newNumber(i));
   }
 
-  void Uint64(uint64_t i) { 
+  void Int64(int64_t i) {
     append(context.newNumber(i));
   }
-  
+
+  void Uint64(uint64_t i) {
+    append(context.newNumber(i));
+  }
+
   void Double(double d) {
     append(context.newNumber(d));
   }
-  
+
   void String(const char* str, size_t length, bool copy) {
     StackElem *tos = objStack.empty() ? 0 : objStack.top();
 
@@ -137,7 +137,7 @@ public:
       append(context.newString(str));
     }
   }
-  
+
   void StartObject() {
     StackElem *elem = new StackElem;
     elem->type = JSValue::Object;
@@ -155,13 +155,13 @@ public:
     append(JSValue::asValue(obj));
     delete elem;
   }
-  
-  void StartArray() { 
+
+  void StartArray() {
     StackElem *elem = new StackElem;
     elem->type = JSValue::Array;
     objStack.push(elem);
   }
-  
+
   void EndArray(size_t elementCount) {
     StackElem *elem = objStack.top(); objStack.pop();
     JSArrayPtr array = context.newArray(elem->obj.size());
@@ -173,16 +173,16 @@ public:
     append(JSValue::asValue(array));
     delete elem;
   }
-  
+
   JSValuePtr GetResult() {
     return root;
   }
 
 private:
-  
+
   JSContextCpp& context;
   JSValuePtr root;
-  
+
   std::stack<StackElem*> objStack;
 };
 
@@ -208,11 +208,11 @@ public:
   StringStream(const StringStream& other) : str(other.str), ss(new std::stringstream(other.str)) {
     ss->seekg(other.ss->tellg());
   }
-  
+
   ~StringStream() {
     delete ss;
   }
-  
+
   StringStream& operator=(const StringStream& other) {
     delete ss;
     ss = new std::stringstream(other.str);
@@ -220,27 +220,27 @@ public:
     return *this;
   }
 
-  Ch Peek() { 
+  Ch Peek() {
     ss->peek();
   }
-  
+
   Ch Take() {
     return ss->get();
   }
-  
-  size_t Tell() { 
-    return ss->tellg(); 
+
+  size_t Tell() {
+    return ss->tellg();
   }
 
   // Not implemented
   void Put(Ch c) { RAPIDJSON_ASSERT(false); }
-  
+
   void Flush() { RAPIDJSON_ASSERT(false); }
-  
+
   Ch* PutBegin() { RAPIDJSON_ASSERT(false); return 0; }
-  
+
   size_t PutEnd(Ch*) { RAPIDJSON_ASSERT(false); return 0; }
-  
+
   // For encoding detection only.
   const Ch* Peek4() const {
     return 0;
@@ -256,6 +256,6 @@ JSValuePtr JSContextCpp::fromJson(const std::string& str) {
   GenericReader<UTF8<char>, UTF8<char> > reader;
   StringStream ss(str);
   reader.Parse<0, StringStream, JSObjectReaderHandler>(ss, handler);
-  
+
   return handler.GetResult();
 }
