@@ -12,19 +12,25 @@ class JSValue;
 class JSObject;
 class JSArray;
 
+#ifdef USE_BOOST_SHARED_PTR
+
+typedef boost::shared_ptr< JSValue > JSValuePtr;
+typedef boost::shared_ptr< JSObject > JSObjectPtr;
+typedef boost::shared_ptr< JSArray > JSArrayPtr;
+
+#define JSOBJECTS_PTR_TYPE(type) boost::shared_ptr< type >
+#define JSOBJECTS_PTR_GET(val) val.get()
+#define JSOBJECTS_PTR_FREE(val)
+
+#else
+
 typedef JSValue* JSValuePtr;
 typedef JSObject* JSObjectPtr;
 typedef JSArray* JSArrayPtr;
 
-#ifdef USE_BOOST_SHARED_PTR
-
-#define JSOBJECTS_PTR_TYPE(type) boost::shared_ptr< type >
-#define JSOBJECTS_PTR_GET(val) val.get()
-
-#else
-
 #define JSOBJECTS_PTR_TYPE(type) type*
 #define JSOBJECTS_PTR_GET(val) val
+#define JSOBJECTS_PTR_FREE(val) delete val
 
 #endif
 

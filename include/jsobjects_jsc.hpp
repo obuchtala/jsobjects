@@ -8,7 +8,7 @@ class JSValueJSC: public JSValue {
 public:
 
   JSValueJSC(JSContextRef context, JSValueRef val): context(context) {
-    
+
     if(JSValueIsUndefined(context, val)) {
       type = Undefined;
     } if(JSValueIsNull(context, val)) {
@@ -19,6 +19,8 @@ public:
       type = Number;
     } else if(JSValueIsString(context, val)) {
       type = String;
+    } else if(JSValueJSC::IsArray(context, val)) {
+      type = Array;
     } else if(JSValueIsObject(context, val)) {
       type = Object;
     } else {
@@ -30,22 +32,22 @@ public:
     JSValueProtect(context, val);
     value = val;
   }
-  
+
   ~JSValueJSC() {
     // release the persistent reference
     JSValueUnprotect(context, value);
   }
-  
+
   virtual std::string asString() {
     assert(JSValueIsString(context, value));
-    
+
     JSStringRef jsstring = JSValueToStringCopy(context, value, /* JSValueRef *exception */ 0);
     unsigned int length = JSStringGetLength(jsstring);
     char *cstr = new char[length+1];
     JSStringGetUTF8CString(jsstring, cstr, length);
     std::string result(cstr);
 
-    JSStringRelease(jsstring);    
+    JSStringRelease(jsstring);
     delete[] cstr;
 
     return result;
@@ -53,12 +55,12 @@ public:
 
   virtual double asDouble() {
     assert(JSValueIsNumber(context, value));
-    return JSValueToNumber(context, value, /* JSValueRef *exception */ 0); 
+    return JSValueToNumber(context, value, /* JSValueRef *exception */ 0);
   }
 
   virtual bool asBool() {
     assert(JSValueIsBoolean(context, value));
-    return JSValueToBoolean(context, value); 
+    return JSValueToBoolean(context, value);
   }
 
   virtual JSValueType getType() { return type; };
@@ -68,8 +70,11 @@ public:
   JSValueRef value;
 
 protected:
+
+  static bool IsArray(JSContextRef context, JSValueRef val);
+
   JSValueType type;
-  
+
 };
 
 class JSObjectJSC: public JSValueJSC, public JSObject {
@@ -110,15 +115,14 @@ public:
   }
 
 protected:
-  JSObjectRef object;  
+  JSObjectRef object;
 };
 
 class JSArrayJSC: public JSObjectJSC, public JSArray {
-  
+
 public:
 
-  JSArrayJSC(JSContextRef context, JSObjectRef arr): JSObjectJSC(context, arr) {
-  }
+  JSArrayJSC(JSContextRef context, JSObjectRef arr): JSObjectJSC(context, arr) { }
 
   virtual JSValuePtr getAt(unsigned int index) {
     return JSValuePtr(new JSValueJSC(context, JSObjectGetPropertyAtIndex(context, object, index, /* JSValueRef *exception */ 0)));
@@ -141,12 +145,7 @@ public:
     JSObjectSetPropertyAtIndex(context, object, index, JSValueMakeNumber(context, val), /* JSValueRef *exception */ 0);
   }
 
-  virtual unsigned int length() {
-    JSPropertyNameArrayRef names = JSObjectCopyPropertyNames(context, object);
-    unsigned int length = JSPropertyNameArrayGetCount(names);
-    JSPropertyNameArrayRelease(names);
-    return length;
-  }
+  virtual unsigned int length();
 };
 
 #ifdef USE_BOOST_SHARED_PTR
@@ -186,5 +185,5 @@ public:
   JSValuePtr valPtr = JSOBJ_JSC_PTR_CAST(JSValue, obj);
   return valPtr;
 }
-  
+
 #undef JSOBJ_JSC_PTR_CAST
