@@ -1,0 +1,2 @@
+static const char* MODULE_NAME = "${MODULE_NAME}";
+static const char* JS_SCRIPT_PATH = "${RUN_SCRIPT}";

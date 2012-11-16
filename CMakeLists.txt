@@ -40,6 +40,10 @@ if (NOT EXTERNALS OR IMPORT)
     add_subdirectory(src/v8)
   endif ()
 
+  if (ENABLE_SWIG)
+    add_subdirectory(examples/swig)
+  endif ()
+
   enable_testing()
   add_subdirectory(test)
 
