@@ -17,3 +17,4 @@ else ()
 endif ()
 
 add_subdirectory(value_argument)
+add_subdirectory(new_value)
