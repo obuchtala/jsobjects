@@ -34,10 +34,10 @@ public:
       type = Number;
     } else if(val->IsString()) {
       type = String;
-    } else if(val->IsObject()) {
-      type = Object;
     } else if(val->IsArray()) {
       type = Array;
+    } else if(val->IsObject()) {
+      type = Object;
     } else {
       throw "Not supported";
     }
@@ -160,6 +160,24 @@ protected:
 };
 
 class JSContextV8: public JSContext {
+  
+public:
+  
+  JSContextV8() {
+    v8::HandleScope scope;
+
+    v8::Handle<v8::Context> context = v8::Context::GetCurrent();
+    v8::Handle<v8::Object> global = context->Global();
+    
+    JSON = v8::Persistent<v8::Object>::New(global->Get(v8::String::New("JSON"))->ToObject());
+    JSON_stringify = v8::Persistent<v8::Function>::New(v8::Handle<v8::Function>::Cast(JSON->Get(v8::String::New("stringify"))));
+    JSON_parse = v8::Persistent<v8::Function>::New(v8::Handle<v8::Function>::Cast(JSON->Get(v8::String::New("parse"))));
+  }
+  
+  virtual ~JSContextV8() {
+    JSON_stringify.Dispose();
+    JSON.Dispose();
+  }
 
   virtual JSArrayPtr newArray(unsigned int length) {
     v8::Handle<v8::Array> arr = v8::Array::New(length);
@@ -181,6 +199,35 @@ class JSContextV8: public JSContext {
   virtual JSValuePtr newString(const std::string& val) {
     return JSValuePtr(new JSValueV8(JSValueV8_fromString(val)));
   }
+  
+  virtual JSValuePtr newString(const char* val) {
+    return JSValuePtr(new JSValueV8(JSValueV8_fromString(val)));
+  }
+  
+  virtual JSValuePtr null() {
+    return JSValuePtr(new JSValueV8(v8::Null()));
+  }
+  
+  virtual JSValuePtr undefined() {
+    return JSValuePtr(new JSValueV8(v8::Undefined()));
+  }
+  
+  virtual JSValuePtr fromJson(const std::string& str) {
+    v8::HandleScope scope;
+    v8::Handle<v8::Value> val = v8::String::New(str.c_str());
+    return JSValuePtr(new JSValueV8(JSON_parse->Call(JSON, 1, &val)));
+  }
+
+  virtual std::string toJson(JSValuePtr val) {
+    JSValuePtr json(new JSValueV8(JSON_stringify->Call(JSON, 1, &(dynamic_cast<JSValueV8*>(JSOBJECTS_PTR_GET(val))->value))));
+    return json->asString();
+  }
+
+private:
+
+  v8::Persistent<v8::Object> JSON;
+  v8::Persistent<v8::Function> JSON_stringify;
+  v8::Persistent<v8::Function> JSON_parse;
 };
 
 JSValuePtr CreateJSValueV8(v8::Handle<v8::Value> val) {
