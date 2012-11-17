@@ -11,12 +11,14 @@ typedef std::vector<std::string> StrVector;
 class JSValue;
 class JSObject;
 class JSArray;
+class JSContext;
 
 #ifdef USE_BOOST_SHARED_PTR
 
 typedef boost::shared_ptr< JSValue > JSValuePtr;
 typedef boost::shared_ptr< JSObject > JSObjectPtr;
 typedef boost::shared_ptr< JSArray > JSArrayPtr;
+typedef boost::shared_ptr< JSContext > JSContextPtr;
 
 #define JSOBJECTS_PTR_TYPE(type) boost::shared_ptr< type >
 #define JSOBJECTS_PTR_GET(val) val.get()
@@ -27,6 +29,7 @@ typedef boost::shared_ptr< JSArray > JSArrayPtr;
 typedef JSValue* JSValuePtr;
 typedef JSObject* JSObjectPtr;
 typedef JSArray* JSArrayPtr;
+typedef JSContext* JSContextPtr;
 
 #define JSOBJECTS_PTR_TYPE(type) type*
 #define JSOBJECTS_PTR_GET(val) val

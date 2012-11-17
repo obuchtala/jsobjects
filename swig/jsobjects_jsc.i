@@ -15,10 +15,20 @@
 
 %typemap(out) JSValue*
 %{
-  $result = $1->value;
+  $result = dynamic_cast<JSValueJSC*>(JSOBJECTS_PTR_GET($1))->value;
 %}
 
 %typemap(newfree) JSValue*
+%{
+   delete $1;
+%}
+
+%typemap(in) JSContext*
+%{
+  $1 = new JSContextJSC(context);
+%}
+
+%typemap(freearg) JSContext*
 %{
    delete $1;
 %}

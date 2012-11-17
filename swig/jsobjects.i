@@ -9,6 +9,7 @@ class JSArray;
 typedef boost::shared_ptr< JSValue > JSValuePtr;
 typedef boost::shared_ptr< JSObject > JSObjectPtr;
 typedef boost::shared_ptr< JSArray > JSArrayPtr;
+typedef boost::shared_ptr< JSContext > JSContextPtr;
 
 #define WR
 
@@ -17,6 +18,7 @@ typedef boost::shared_ptr< JSArray > JSArrayPtr;
 typedef JSValue* JSValuePtr;
 typedef JSObject* JSObjectPtr;
 typedef JSArray* JSArrayPtr;
+typedef JSContext* JSContextPtr;
 
 #endif
 
