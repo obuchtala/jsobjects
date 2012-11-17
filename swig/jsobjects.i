@@ -11,8 +11,6 @@ typedef boost::shared_ptr< JSObject > JSObjectPtr;
 typedef boost::shared_ptr< JSArray > JSArrayPtr;
 typedef boost::shared_ptr< JSContext > JSContextPtr;
 
-#define WR
-
 #else
 
 typedef JSValue* JSValuePtr;

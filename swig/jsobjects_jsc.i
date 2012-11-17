@@ -1,6 +1,5 @@
 %header %{
 #include <jsobjects_jsc.hpp>
-#include <memory>
 %}
 
 %typemap(in) JSValue*
