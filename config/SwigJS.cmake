@@ -32,7 +32,7 @@ endif ()
 if (ENABLE_V8)
   add_library(v8_shell STATIC
     ${JS_INTERPRETER_DIR}/js_shell.h
-    ${JS_INTERPRETER_DIR}/jsc_shell.cxx
+    ${JS_INTERPRETER_DIR}/js_shell.cxx
     ${JS_INTERPRETER_DIR}/v8_shell.cxx
   )
 endif ()
