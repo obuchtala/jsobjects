@@ -17,13 +17,18 @@ Installation
 
 Requirements:
  - CMake
+ - autoconf
  - automake
  - git
  - svn
 
+Preparation - OSX
+.................
+
 Note: on newer OSX versions you have to install automake by yourself.
 This easiest done with Macports.
 
+    sudo port install autoconf
     sudo port install automake
 
 Clone repository
