@@ -6,4 +6,6 @@
 
 %include <jsobjects.i>
 
+%newobject createString;
 %include "new_value.hpp"
+
