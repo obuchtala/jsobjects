@@ -10,6 +10,7 @@ set(ENABLE_JSC OFF CACHE BOOL "If JavascriptCore adapter should be created (ON|O
 set(ENABLE_V8 OFF CACHE BOOL "If V8 adapter should be created (ON|OFF)")
 set(ENABLE_CPP OFF CACHE BOOL "If C++ adapter should be created (ON|OFF)")
 set(ENABLE_SWIG OFF CACHE BOOL "If C++ adapter should be created (ON|OFF)")
+set(ENABLE_TESTS OFF CACHE BOOL "If test suite should be built (ON|OFF)")
 set(EXTERNALS_ONLY OFF CACHE BOOL "Set this if you want to build externals only. (ON|OFF)")
 set(SWIG_TARGET "jsc" CACHE STRING "swig javasript target (jsc|v8)")
 
@@ -45,7 +46,9 @@ if (NOT EXTERNALS_ONLY OR IMPORT)
     add_subdirectory(examples/swig)
   endif ()
 
-  enable_testing()
-  add_subdirectory(test)
+  if (ENABLE_TESTS)
+    enable_testing()
+    add_subdirectory(test)
+  endif ()
 
 endif()
