@@ -10,13 +10,14 @@ set(ENABLE_JSC OFF CACHE BOOL "If JavascriptCore adapter should be created (ON|O
 set(ENABLE_V8 OFF CACHE BOOL "If V8 adapter should be created (ON|OFF)")
 set(ENABLE_CPP OFF CACHE BOOL "If C++ adapter should be created (ON|OFF)")
 set(ENABLE_SWIG OFF CACHE BOOL "If C++ adapter should be created (ON|OFF)")
+set(EXTERNALS_ONLY OFF CACHE BOOL "Set this if you want to build externals only. (ON|OFF)")
 set(SWIG_TARGET "jsc" CACHE STRING "swig javasript target (jsc|v8)")
 
 set(jsobjects_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
 
 # Configure external projects
 # ===========================
-if (EXTERNALS OR IMPORT)
+if (EXTERNALS_ONLY OR IMPORT)
 
   set (DOWNLOAD_EXTERNALS ON)
 
@@ -24,7 +25,7 @@ endif()
 
 include(Externals)
 
-if (NOT EXTERNALS OR IMPORT)
+if (NOT EXTERNALS_ONLY OR IMPORT)
 
   include(ExportTarget)
 

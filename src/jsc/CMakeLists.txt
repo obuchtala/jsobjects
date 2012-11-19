@@ -12,5 +12,6 @@ add_library(${TARGET} ${LIBRARY_TYPE}
 )
 
 target_link_libraries(${TARGET}
-  ${JSC_LIBS}
+  ${JSC_LIBRARIES}
+  ${JSC}
 )

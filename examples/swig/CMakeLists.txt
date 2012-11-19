@@ -4,7 +4,7 @@ if ("${SWIG_TARGET}" STREQUAL "jsc")
 
   set (SWIG_JS_DEFINE "SWIG_JAVASCRIPT_JSC")
   set (JS_INCLUDE_DIRS ${JSC_INCLUDE_DIRS})
-  set (JS_LIBS ${JSC_LIBS})
+  set (JS_LIBS ${JSC_LIBS} ${JSC})
   set (JSOBJECTS_LIB jsobjects_jsc)
   set (JS_SHELL_LIBS jsc_shell dl)
 
