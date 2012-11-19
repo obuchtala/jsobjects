@@ -80,6 +80,11 @@ class JSObjectV8: public JSObject, public JSValueV8 {
 public:
   JSObjectV8(v8::Handle<v8::Object> obj): JSValueV8(obj), object(obj) {}
 
+  JSObjectV8(v8::Handle<v8::Value> val): JSValueV8(val) {
+    assert(value->IsObject());
+    object = v8::Handle<v8::Object>::Cast(val);
+  }
+
   virtual JSValuePtr get(const std::string& key) {
     return JSValuePtr(new JSValueV8(object->Get(v8::String::New(key.c_str()))));
   }
@@ -121,7 +126,7 @@ class JSArrayV8: public JSObjectV8, public JSArray {
 
 public:
 
-  JSArrayV8(v8::Handle<v8::Array> arr): JSObjectV8(arr), array(arr) {}
+  JSArrayV8(v8::Handle<v8::Array> arr): JSObjectV8(v8::Handle<v8::Object>::Cast(arr)), array(arr) {}
 
   virtual ~JSArrayV8() {
     std::cout << "bla" << std::endl;

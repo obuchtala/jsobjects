@@ -22,6 +22,16 @@
    delete $1;
 %}
 
+%typemap(in) JSObject*
+%{
+  $1 = new JSObjectJSC(context, $input);
+%}
+
+%typemap(freearg) JSObject*
+%{
+   delete $1;
+%}
+
 %typemap(in) JSContext*
 %{
   $1 = new JSContextJSC(context);

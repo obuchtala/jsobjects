@@ -82,6 +82,13 @@ class JSObjectJSC: public JSValueJSC, public JSObject {
 public:
   JSObjectJSC(JSContextRef context, JSObjectRef obj): JSValueJSC(context, obj), object(obj) {}
 
+  JSObjectJSC(JSContextRef context, JSValueRef val): JSValueJSC(context, val) {
+      assert(JSValueIsObject(context, val));
+      object = JSValueToObject(context, val, 0);
+  }
+
+  virtual ~JSObjectJSC() { }
+
   virtual JSValuePtr get(const std::string& key) {
     JSStringRef jskey = JSStringCreateWithUTF8CString(key.c_str());
     JSValueRef val = JSObjectGetProperty(context, object, jskey, /* JSValueRef *exception */ 0);
