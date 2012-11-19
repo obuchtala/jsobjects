@@ -53,6 +53,8 @@ public:
 
 public:
 
+  virtual ~JSValue() {}
+
   virtual std::string asString() = 0;
 
   virtual double asDouble() = 0;
@@ -109,6 +111,8 @@ class JSObject {
 
 public:
 
+  virtual ~JSObject () {}
+
   virtual JSValuePtr get(const std::string& key) = 0;
 
   virtual void set(const std::string& key, JSValuePtr val) = 0;
@@ -136,6 +140,8 @@ public:
 class JSArray {
 
 public:
+
+  virtual ~JSArray () {}
 
   virtual unsigned int length() = 0;
 
@@ -165,6 +171,8 @@ public:
 class JSContext {
 
 public:
+
+  virtual ~JSContext () {}
 
   virtual JSValuePtr newString(const std::string& val) = 0;
 
