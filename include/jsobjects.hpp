@@ -67,16 +67,6 @@ public:
     return static_cast<int>(asDouble());
   };
 
-  static inline JSArrayPtr asArray(JSValuePtr val);
-
-  static inline JSObjectPtr asObject(JSValuePtr val);
-
-  static inline JSObjectPtr asObject(JSArrayPtr arr);
-
-  static inline JSValuePtr asValue(JSArrayPtr arr);
-
-  static inline JSValuePtr asValue(JSObjectPtr obj);
-
   inline bool isNull() {
    return(getType() == JSValue::Null);
   }
@@ -105,6 +95,15 @@ public:
    return(getType() == JSValue::Array);
   }
 
+  static JSArrayPtr asArray(JSValuePtr val);
+
+  static JSObjectPtr asObject(JSValuePtr val);
+
+  static JSObjectPtr asObject(JSArrayPtr arr);
+
+  static JSValuePtr asValue(JSArrayPtr arr);
+
+  static JSValuePtr asValue(JSObjectPtr obj);
 };
 
 class JSObject {

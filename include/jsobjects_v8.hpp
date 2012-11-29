@@ -1,3 +1,6 @@
+#ifndef JSOBJECTS_V8_HPP
+#define JSOBJECTS_V8_HPP
+
 #include "jsobjects.hpp"
 
 #include <v8.h>
@@ -160,20 +163,20 @@ protected:
 };
 
 class JSContextV8: public JSContext {
-  
+
 public:
-  
+
   JSContextV8() {
     v8::HandleScope scope;
 
     v8::Handle<v8::Context> context = v8::Context::GetCurrent();
     v8::Handle<v8::Object> global = context->Global();
-    
+
     JSON = v8::Persistent<v8::Object>::New(global->Get(v8::String::New("JSON"))->ToObject());
     JSON_stringify = v8::Persistent<v8::Function>::New(v8::Handle<v8::Function>::Cast(JSON->Get(v8::String::New("stringify"))));
     JSON_parse = v8::Persistent<v8::Function>::New(v8::Handle<v8::Function>::Cast(JSON->Get(v8::String::New("parse"))));
   }
-  
+
   virtual ~JSContextV8() {
     JSON_stringify.Dispose();
     JSON.Dispose();
@@ -183,35 +186,35 @@ public:
     v8::Handle<v8::Array> arr = v8::Array::New(length);
     return JSArrayPtr(new JSArrayV8(arr));
   }
-  
+
   virtual JSValuePtr newBoolean(bool val) {
     return JSValuePtr(new JSValueV8(v8::Boolean::New(val)));
   }
-  
+
   virtual JSValuePtr newNumber(double val) {
     return JSValuePtr(new JSValueV8(v8::Number::New(val)));
   }
-  
+
   virtual JSObjectPtr newObject() {
     return JSObjectPtr(new JSObjectV8(v8::Object::New()));
   }
-  
+
   virtual JSValuePtr newString(const std::string& val) {
     return JSValuePtr(new JSValueV8(JSValueV8_fromString(val)));
   }
-  
+
   virtual JSValuePtr newString(const char* val) {
     return JSValuePtr(new JSValueV8(JSValueV8_fromString(val)));
   }
-  
+
   virtual JSValuePtr null() {
     return JSValuePtr(new JSValueV8(v8::Null()));
   }
-  
+
   virtual JSValuePtr undefined() {
     return JSValuePtr(new JSValueV8(v8::Undefined()));
   }
-  
+
   virtual JSValuePtr fromJson(const std::string& str) {
     v8::HandleScope scope;
     v8::Handle<v8::Value> val = v8::String::New(str.c_str());
@@ -242,42 +245,4 @@ JSArrayPtr CreateJSArrayV8(v8::Handle<v8::Array> arr) {
   return JSArrayPtr(new JSArrayV8(arr));
 }
 
-#ifdef USE_BOOST_SHARED_PTR
-
-#define JSOBJ_V8_PTR_CAST(type, obj) boost::dynamic_cast< type >(obj)
-
-#else
-
-#define JSOBJ_V8_PTR_CAST(type, obj) dynamic_cast< type *> ( (JSValueV8*) obj)
-
-#endif
-
-
-/*static*/ JSArrayPtr JSValue::asArray(JSValuePtr val) {
-  assert(val->getType() == Array);
-  JSArrayPtr arrPtr = JSOBJ_V8_PTR_CAST(JSArray, val);
-  return arrPtr;
-}
-
-/*static*/ JSObjectPtr JSValue::asObject(JSValuePtr val) {
-  assert(val->getType() == Object || val->getType() == Array);
-  JSObjectPtr objPtr = JSOBJ_V8_PTR_CAST(JSObject, val);
-  return objPtr;
-}
-
-/*static*/ JSObjectPtr JSValue::asObject(JSArrayPtr arr) {
-  JSObjectPtr objPtr = JSOBJ_V8_PTR_CAST(JSObject, arr);
-  return objPtr;
-}
-
-/*static*/ JSValuePtr JSValue::asValue(JSArrayPtr arr) {
-  JSValuePtr valPtr = JSOBJ_V8_PTR_CAST(JSValue, arr);
-  return valPtr;
-}
-
-/*static*/ JSValuePtr JSValue::asValue(JSObjectPtr obj) {
-  JSValuePtr valPtr = JSOBJ_V8_PTR_CAST(JSValue, obj);
-  return valPtr;
-}
-  
-#undef JSOBJ_JSC_PTR_CAST
+#endif // JSOBJECTS_V8_HPP

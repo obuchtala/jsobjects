@@ -10,7 +10,7 @@
 class JSValueCpp: public JSValue {
 
 protected:
-  
+
   JSValueCpp() {}
 
 public:
@@ -19,7 +19,7 @@ public:
       type = String;
       str = val;
   }
-  
+
   JSValueCpp(const char* val) {
     type = String;
     str = val;
@@ -34,15 +34,15 @@ public:
       type = Number;
       d = val;
   }
-  
+
   JSValueCpp(JSObjectPtr val) {
     type = Object;
     obj = val;
   }
-  
+
   ~JSValueCpp() {
   }
-  
+
   virtual inline std::string asString() {
     assert(type == String);
     return str;
@@ -58,30 +58,30 @@ public:
     return b;
   }
 
-  virtual inline JSValueType getType() { 
-    return type; 
+  virtual inline JSValueType getType() {
+    return type;
   };
-  
-  JSValuePtr inline null() { 
+
+  JSValuePtr inline null() {
     JSValueCpp *_null = new JSValueCpp();
     _null->type = Null;
     return JSValuePtr(_null);
   }
 
-  JSValuePtr inline undefined() { 
+  JSValuePtr inline undefined() {
     JSValueCpp *_undefined = new JSValueCpp();
     _undefined->type = Undefined;
     return JSValuePtr(_undefined);
   }
-  
+
 protected:
-  
+
   std::string str;
   bool b;
   double d;
   JSObjectPtr obj;
-  
-  JSValueType type;  
+
+  JSValueType type;
 };
 
 class JSObjectCpp: public JSValueCpp, public JSObject {
@@ -114,11 +114,11 @@ public:
   virtual void set(const std::string& key, double val) {
     map[key] = JSValuePtr(new JSValueCpp(val));
   }
-  
+
   static JSObjectPtr Create() {
     return JSObjectPtr(new JSObjectCpp());
   }
-  
+
   virtual StrVector getKeys() {
     StrVector keys;
     for(std::map<std::string, JSValuePtr>::iterator it = map.begin(); it != map.end(); ++it) {
@@ -128,11 +128,11 @@ public:
   }
 
 protected:
-  std::map<std::string, JSValuePtr> map;  
+  std::map<std::string, JSValuePtr> map;
 };
 
 class JSArrayCpp: public JSObjectCpp, public JSArray {
-  
+
 public:
 
   JSArrayCpp(int length) {
@@ -142,7 +142,7 @@ public:
       vector[idx] = undefined();
     }
   }
-  
+
   virtual JSValuePtr getAt(unsigned int index) {
     return vector[index];
   }
@@ -178,7 +178,7 @@ protected:
 class JSContextCpp : public JSContext {
 
 public:
-  
+
   JSContextCpp() {
     JSValueCpp *creator = new JSValueCpp(0.0);
     _null = creator->null();
@@ -193,15 +193,15 @@ public:
   virtual JSValuePtr newString(const char* val) {
     return JSValuePtr(new JSValueCpp(val));
   }
-  
+
   virtual JSValuePtr newBoolean(bool val) {
     return JSValuePtr(new JSValueCpp(val));
   }
-  
+
   virtual JSValuePtr newNumber(double val) {
     return JSValuePtr(new JSValueCpp(val));
   }
-  
+
   virtual JSObjectPtr newObject() {
     return JSObjectPtr(new JSObjectCpp());
   }
@@ -234,7 +234,7 @@ public:
   virtual JSValuePtr undefined() {
     return _undefined;
   }
-  
+
   virtual std::string toJson(JSValuePtr val);
 
   virtual JSValuePtr fromJson(const std::string& str);
@@ -249,11 +249,11 @@ class JSVoidFunctionCpp: public JSVoidFunction<A> {
 public:
   JSVoidFunctionCpp(void (*f) (A val)): f(f) {
   }
-  
+
   virtual void call(A val) {
     f(val);
   }
-  
+
 private:
   void (*f) (A val);
 };
@@ -263,11 +263,11 @@ class JSVoidMemberFunctionCpp: public JSVoidFunction<A> {
 public:
   JSVoidMemberFunctionCpp(O& obj, void (O::*f) (A val)): obj(obj), f(f) {
   }
-  
+
   virtual void call(A val) {
     ((obj).*(f)) (val);
   }
-  
+
 private:
   void (O::*f) (A val);
   O& obj;
@@ -283,44 +283,5 @@ typename JSVoidFunction<A>::Ptr CreateMemberVoidFunction(O& obj, void (O::*f) (A
   return typename JSVoidFunction<A>::Ptr(new JSVoidMemberFunctionCpp<O, A>(obj, f));
 }
 
-#ifdef USE_BOOST_SHARED_PTR
-
-#define JSOBJ_CPP_PTR_CAST(type, obj) boost::dynamic_cast< type >(obj)
-
-#else
-
-#define JSOBJ_CPP_PTR_CAST(type, obj) dynamic_cast< type *> ( dynamic_cast< JSValueCpp* > (obj) )
-
-#endif
-
-
-/*static*/ JSArrayPtr JSValue::asArray(JSValuePtr val) {
-  assert(val->getType() == Array);
-  JSArrayPtr arrPtr = JSOBJ_CPP_PTR_CAST(JSArray, val);
-  return arrPtr;
-}
-
-/*static*/ JSObjectPtr JSValue::asObject(JSValuePtr val) {
-  assert(val->getType() == Object || val->getType() == Array);
-  JSObjectPtr objPtr = JSOBJ_CPP_PTR_CAST(JSObject, val);
-  return objPtr;
-}
-
-/*static*/ JSObjectPtr JSValue::asObject(JSArrayPtr arr) {
-  JSObjectPtr objPtr = JSOBJ_CPP_PTR_CAST(JSObject, arr);
-  return objPtr;
-}
-
-/*static*/ JSValuePtr JSValue::asValue(JSArrayPtr arr) {
-  JSValuePtr valPtr = JSOBJ_CPP_PTR_CAST(JSValue, arr);
-  return valPtr;
-}
-
-/*static*/ JSValuePtr JSValue::asValue(JSObjectPtr obj) {
-  JSValuePtr valPtr = JSOBJ_CPP_PTR_CAST(JSValue, obj);
-  return valPtr;
-}
-  
-#undef JSOBJ_CPP_PTR_CAST
 
 #endif // JSVALUECPP_HPP
