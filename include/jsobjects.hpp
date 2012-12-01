@@ -1,5 +1,5 @@
-#ifndef _JAVASCRIPT_H_
-#define _JAVASCRIPT_H_
+#ifndef _JSOBJECTS_HPP_
+#define _JSOBJECTS_HPP_
 
 #include <string>
 #include <vector>
@@ -214,4 +214,4 @@ public:
   virtual R call(A arg) = 0;
 };
 
-#endif
+#endif // _JSOBJECTS_HPP_

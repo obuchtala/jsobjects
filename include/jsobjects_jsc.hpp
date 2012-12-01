@@ -1,3 +1,6 @@
+#ifndef JSOBJECTS_JSC_HPP
+#define JSOBJECTS_JSC_HPP
+
 #include "jsobjects.hpp"
 
 #include <JavaScriptCore/JavaScript.h>
@@ -242,3 +245,4 @@ private:
 
 };
 
+#endif //JSOBJECTS_JSC_HPP

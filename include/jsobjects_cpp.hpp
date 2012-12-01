@@ -1,5 +1,5 @@
-#ifndef JSVALUECPP_HPP
-#define JSVALUECPP_HPP
+#ifndef JSOBJECTS_CPP_HPP
+#define JSOBJECTS_CPP_HPP
 
 #include "jsobjects.hpp"
 
@@ -284,4 +284,4 @@ typename JSVoidFunction<A>::Ptr CreateMemberVoidFunction(O& obj, void (O::*f) (A
 }
 
 
-#endif // JSVALUECPP_HPP
+#endif // JSOBJECTS_CPP_HPP
