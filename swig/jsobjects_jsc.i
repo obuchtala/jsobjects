@@ -7,17 +7,27 @@
   $1 = new JSValueJSC(context, $input);
 %}
 
-%typemap(freearg) JSValue*
-%{
-   delete $1;
-%}
-
 %typemap(out) JSValue*
 %{
   $result = dynamic_cast<JSValueJSC*>(JSOBJECTS_PTR_GET($1))->value;
 %}
 
-%typemap(newfree) JSValue*
+%typemap(in) JSObject*
+%{
+  $1 = new JSObjectJSC(context, $input);
+%}
+
+%typemap(out) JSObject*
+%{
+  $result = dynamic_cast<JSObjectJSC*>(JSOBJECTS_PTR_GET($1))->value;
+%}
+
+%typemap(freearg) JSValue*, JSObject*, JSArray*
+%{
+   delete $1;
+%}
+
+%typemap(newfree) JSValue*, JSObject*, JSArray*
 %{
    delete $1;
 %}
