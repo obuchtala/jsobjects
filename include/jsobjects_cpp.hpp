@@ -1,12 +1,14 @@
 #ifndef JSOBJECTS_CPP_HPP
 #define JSOBJECTS_CPP_HPP
 
-#include "jsobjects.hpp"
-
 #include <assert.h>
 #include <map>
 #include <vector>
 
+#include "jsobjects.hpp"
+
+namespace jsobjects {
+  
 class JSValueCpp: public JSValue {
 
 protected:
@@ -43,32 +45,38 @@ public:
   ~JSValueCpp() {
   }
 
-  virtual inline std::string asString() {
+  virtual  std::string asString() {
     assert(type == String);
     return str;
   }
 
-  virtual inline double asDouble() {
+  virtual  double asDouble() {
     assert(type == Number);
     return d;
   }
+  
+  virtual  JSObjectPtr toObject(JSArrayPtr arr);
 
-  virtual inline bool asBool() {
+  virtual  JSValuePtr toValue(JSArrayPtr arr);
+
+  virtual  JSValuePtr toValue(JSObjectPtr obj);
+
+  virtual  bool asBool() {
     assert(type == Boolean);
     return b;
   }
 
-  virtual inline JSValueType getType() {
+  virtual  JSValueType getType() {
     return type;
   };
 
-  JSValuePtr inline null() {
+  JSValuePtr  null() {
     JSValueCpp *_null = new JSValueCpp();
     _null->type = Null;
     return JSValuePtr(_null);
   }
 
-  JSValuePtr inline undefined() {
+  JSValuePtr  undefined() {
     JSValueCpp *_undefined = new JSValueCpp();
     _undefined->type = Undefined;
     return JSValuePtr(_undefined);
@@ -206,25 +214,8 @@ public:
     return JSObjectPtr(new JSObjectCpp());
   }
 
-  JSObjectPtr newObject(const std::map<std::string, JSValuePtr> &vals) {
-    JSObjectPtr obj(new JSObjectCpp());
-    for(std::map<std::string, JSValuePtr>::const_iterator it = vals.begin();
-          it != vals.end(); ++it) {
-      obj->set(it->first, it->second);
-    }
-    return obj;
-  }
-
   virtual JSArrayPtr newArray(unsigned int length) {
     return JSArrayPtr(new JSArrayCpp(length));
-  }
-
-  JSArrayPtr newArray(const std::vector<JSValuePtr> vals) {
-    JSArrayPtr array(new JSArrayCpp(vals.size()));
-    for(size_t idx=0; idx < vals.size(); ++idx) {
-      array->setAt(idx, vals[idx]);
-    }
-    return array;
   }
 
   virtual JSValuePtr null() {
@@ -235,14 +226,46 @@ public:
     return _undefined;
   }
 
+  JSObjectPtr newObject(const std::map<std::string, JSValuePtr> &vals) {
+    JSObjectPtr obj(new JSObjectCpp());
+    for(std::map<std::string, JSValuePtr>::const_iterator it = vals.begin();
+          it != vals.end(); ++it) {
+      obj->set(it->first, it->second);
+    }
+    return obj;
+  }
+
+  JSArrayPtr newArray(const std::vector<JSValuePtr> vals) {
+    JSArrayPtr array(new JSArrayCpp(vals.size()));
+    for(size_t idx=0; idx < vals.size(); ++idx) {
+      array->setAt(idx, vals[idx]);
+    }
+    return array;
+  }
+
   virtual std::string toJson(JSValuePtr val);
 
   virtual JSValuePtr fromJson(const std::string& str);
 
 private:
+
   JSValuePtr _null;
+  
   JSValuePtr _undefined;
 };
+
+JSObjectPtr JSValueCpp::toObject(JSArrayPtr arr) {
+  return boost::dynamic_pointer_cast<JSObjectCpp>(arr);
+}
+
+JSValuePtr JSValueCpp::toValue(JSArrayPtr arr) {
+  return boost::dynamic_pointer_cast<JSValueCpp>(arr);
+}
+
+JSValuePtr JSValueCpp::toValue(JSObjectPtr obj) {
+  return boost::dynamic_pointer_cast<JSValueCpp>(obj);
+}
+
 
 template<typename A>
 class JSVoidFunctionCpp: public JSVoidFunction<A> {
@@ -283,5 +306,7 @@ typename JSVoidFunction<A>::Ptr CreateMemberVoidFunction(O& obj, void (O::*f) (A
   return typename JSVoidFunction<A>::Ptr(new JSVoidMemberFunctionCpp<O, A>(obj, f));
 }
 
+
+} // namespace jsobjects
 
 #endif // JSOBJECTS_CPP_HPP

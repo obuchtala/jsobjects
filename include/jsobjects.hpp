@@ -3,17 +3,18 @@
 
 #include <string>
 #include <vector>
-
 #include <assert.h>
 
+#include <boost/shared_ptr.hpp>
+
 typedef std::vector<std::string> StrVector;
+
+namespace jsobjects {
 
 class JSValue;
 class JSObject;
 class JSArray;
 class JSContext;
-
-#ifdef USE_BOOST_SHARED_PTR
 
 typedef boost::shared_ptr< JSValue > JSValuePtr;
 typedef boost::shared_ptr< JSObject > JSObjectPtr;
@@ -23,19 +24,6 @@ typedef boost::shared_ptr< JSContext > JSContextPtr;
 #define JSOBJECTS_PTR_TYPE(type) boost::shared_ptr< type >
 #define JSOBJECTS_PTR_GET(val) val.get()
 #define JSOBJECTS_PTR_FREE(val)
-
-#else
-
-typedef JSValue* JSValuePtr;
-typedef JSObject* JSObjectPtr;
-typedef JSArray* JSArrayPtr;
-typedef JSContext* JSContextPtr;
-
-#define JSOBJECTS_PTR_TYPE(type) type*
-#define JSOBJECTS_PTR_GET(val) val
-#define JSOBJECTS_PTR_FREE(val) delete val
-
-#endif
 
 class JSValue {
 
@@ -55,115 +43,90 @@ public:
 
   virtual ~JSValue() {}
 
-  virtual std::string asString() = 0;
+  inline virtual std::string asString() { throw "don't call me!"; };
 
-  virtual double asDouble() = 0;
+  inline virtual double asDouble() { throw "don't call me!"; };
 
-  virtual bool asBool() = 0;
+  inline virtual bool asBool() { throw "don't call me!"; };
 
-  virtual JSValueType getType() = 0;
+  inline virtual JSValueType getType() { throw "don't call me!"; };
 
-  inline int asInteger() {
-    return static_cast<int>(asDouble());
-  };
+  inline virtual JSArrayPtr asArray() { throw "don't call me!"; };
 
-  inline bool isNull() {
-   return(getType() == JSValue::Null);
-  }
+  inline virtual JSObjectPtr asObject() { throw "don't call me!"; };
 
-  inline bool isUndefined()  {
-   return(getType() == JSValue::Undefined);
-  }
+  inline virtual JSObjectPtr toObject(JSArrayPtr arr) { throw "don't call me!"; };
 
-  inline bool isString() {
-   return(getType() == JSValue::String);
-  }
+  inline virtual JSValuePtr toValue(JSArrayPtr arr) { throw "don't call me!"; };
 
-  inline bool isNumber() {
-   return(getType() == JSValue::Number);
-  }
+  inline virtual JSValuePtr toValue(JSObjectPtr obj) { throw "don't call me!"; };
 
-  inline bool isBoolean() {
-   return(getType() == JSValue::Boolean);
-  }
+  inline int asInteger();
 
-  inline bool isObject() {
-   return(getType() == JSValue::Object);
-  }
+  inline bool isNull();
 
-  inline bool isArray() {
-   return(getType() == JSValue::Array);
-  }
+  inline bool isUndefined();
 
-  static JSArrayPtr asArray(JSValuePtr val);
+  inline bool isString();
 
-  static JSObjectPtr asObject(JSValuePtr val);
+  inline bool isNumber();
 
-  static JSObjectPtr asObject(JSArrayPtr arr);
+  inline bool isBoolean();
 
-  static JSValuePtr asValue(JSArrayPtr arr);
+  inline bool isObject();
 
-  static JSValuePtr asValue(JSObjectPtr obj);
+  inline bool isArray();
 };
 
-class JSObject {
+class JSObject: public JSValue {
 
 public:
 
   virtual ~JSObject () {}
 
-  virtual JSValuePtr get(const std::string& key) = 0;
+  inline virtual JSValuePtr get(const std::string& key) { throw "don't call me!"; };
 
-  virtual void set(const std::string& key, JSValuePtr val) = 0;
+  inline virtual void set(const std::string& key, JSValuePtr val) { throw "don't call me!"; };
 
-  virtual void set(const std::string& key, const std::string& val) = 0;
+  inline virtual void set(const std::string& key, const std::string& val) { throw "don't call me!"; };
 
-  virtual void set(const std::string& key, const char* val) = 0;
+  inline virtual void set(const std::string& key, const char* val) { throw "don't call me!"; };
 
-  virtual void set(const std::string& key, bool val) = 0;
+  inline virtual void set(const std::string& key, bool val) { throw "don't call me!"; };
 
-  virtual void set(const std::string& key, double val) = 0;
+  inline virtual void set(const std::string& key, double val) { throw "don't call me!"; };
 
-  virtual StrVector getKeys() = 0;
+  inline virtual StrVector getKeys() { throw "don't call me!"; };
 
-  inline void set(const std::string& key, JSArrayPtr val) {
-    set(key, JSValue::asValue(val));
-  };
+  inline void set(const std::string& key, JSArrayPtr val);
 
-  inline void set(const std::string& key, JSObjectPtr val) {
-    set(key, JSValue::asValue(val));
-  };
+  inline void set(const std::string& key, JSObjectPtr val);
 
 };
 
-class JSArray {
+class JSArray: public JSObject {
 
 public:
 
   virtual ~JSArray () {}
 
-  virtual unsigned int length() = 0;
+  inline virtual unsigned int length() { throw "don't call me!"; };
 
-  virtual JSValuePtr getAt(unsigned int index) = 0;
+  inline virtual JSValuePtr getAt(unsigned int index) { throw "don't call me!"; };
 
-  virtual void setAt(unsigned int index, JSValuePtr val) = 0;
+  inline virtual void setAt(unsigned int index, JSValuePtr val) { throw "don't call me!"; };
 
-  virtual void setAt(unsigned int index, const std::string& val) = 0;
+  inline virtual void setAt(unsigned int index, const std::string& val) { throw "don't call me!"; };
 
-  virtual void setAt(unsigned int index, const char* val) = 0;
+  inline virtual void setAt(unsigned int index, const char* val) { throw "don't call me!"; };
 
-  virtual void setAt(unsigned int index, bool val) = 0;
+  inline virtual void setAt(unsigned int index, bool val) { throw "don't call me!"; };
 
-  virtual void setAt(unsigned int index, double val) = 0;
+  inline virtual void setAt(unsigned int index, double val) { throw "don't call me!"; };
 
-  inline void setAt(unsigned int index, JSArrayPtr val) {
-    setAt(index, JSValue::asValue(val));
-  };
+  inline void setAt(unsigned int index, JSArrayPtr val);
 
-  inline void set(unsigned int index, JSObjectPtr val) {
-    setAt(index, JSValue::asValue(val));
-  };
-
+  inline void set(unsigned int index, JSObjectPtr val);
 };
 
 
@@ -195,6 +158,55 @@ public:
 
 };
 
+
+int JSValue::asInteger() {
+  return static_cast<int>(asDouble());
+};
+
+bool JSValue::isNull() {
+  return(getType() == JSValue::Null);
+}
+
+bool JSValue::isUndefined()  {
+  return(getType() == JSValue::Undefined);
+}
+
+bool JSValue::isString() {
+  return(getType() == JSValue::String);
+}
+
+bool JSValue::isNumber() {
+  return(getType() == JSValue::Number);
+}
+
+bool JSValue::isBoolean() {
+  return(getType() == JSValue::Boolean);
+}
+
+bool JSValue::isObject() {
+  return(getType() == JSValue::Object);
+}
+
+bool JSValue::isArray() {
+  return(getType() == JSValue::Array);
+}
+
+void JSObject::set(const std::string& key, JSArrayPtr val) {
+  set(key, toValue(val));
+};
+
+void JSObject::set(const std::string& key, JSObjectPtr val) {
+  set(key, toValue(val));
+};
+
+void JSArray::setAt(unsigned int index, JSArrayPtr val) {
+  setAt(index, toValue(val));
+};
+
+void JSArray::set(unsigned int index, JSObjectPtr val) {
+  setAt(index, toValue(val));
+};
+
 template <typename A>
 class JSVoidFunction {
 public:
@@ -213,5 +225,7 @@ public:
 
   virtual R call(A arg) = 0;
 };
+  
+} // namespace jsobjects
 
 #endif // _JSOBJECTS_HPP_
