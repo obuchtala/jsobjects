@@ -12,6 +12,8 @@ using rapidjson::GenericStringBuffer;
 using rapidjson::Writer;
 using rapidjson::GenericReader;
 
+namespace jsobjects {
+  
 void JSValueCpp_toJSON(Writer< GenericStringBuffer< UTF8<char> > > &w, JSValuePtr val);
 
 void JSValueCpp_toJSON_Object(Writer< GenericStringBuffer< UTF8<char> > > &w, JSObjectPtr obj) {
@@ -259,3 +261,5 @@ JSValuePtr JSContextCpp::fromJson(const std::string& str) {
 
   return handler.GetResult();
 }
+
+} // namespace jsobjects

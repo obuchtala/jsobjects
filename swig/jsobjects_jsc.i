@@ -2,42 +2,30 @@
 #include <jsobjects_jsc.hpp>
 %}
 
-%typemap(in) JSValue*
-%{
-  $1 = new JSValueJSC(context, $input);
-%}
+namespace jsobjects {
 
-%typemap(freearg) JSValue*
-%{
-   delete $1;
-%}
+  %typemap(in) JSValuePtr
+  %{
+    $1 = JSValuePtr(new JSValueJSC(context, $input));
+  %}
 
-%typemap(out) JSValue*
-%{
-  $result = dynamic_cast<JSValueJSC*>(JSOBJECTS_PTR_GET($1))->value;
-%}
+  %typemap(out) JSValuePtr
+  %{
+    $result = dynamic_cast<JSValueJSC*>(JSOBJECTS_PTR_GET($1))->value;
+  %}
 
-%typemap(newfree) JSValue*
-%{
-   delete $1;
-%}
+  %typemap(in) JSObjectPtr
+  %{
+    $1 = JSObjectPtr(new JSObjectJSC(context, $input));
+  %}
 
-%typemap(in) JSObject*
-%{
-  $1 = new JSObjectJSC(context, $input);
-%}
+  %typemap(out) JSObjectPtr
+  %{
+    $result = dynamic_cast<JSObjectJSC*>(JSOBJECTS_PTR_GET($1))->value;
+  %}
 
-%typemap(freearg) JSObject*
-%{
-   delete $1;
-%}
-
-%typemap(in) JSContext*
-%{
-  $1 = new JSContextJSC(context);
-%}
-
-%typemap(freearg) JSContext*
-%{
-   delete $1;
-%}
+  %typemap(in) JSContextPtr
+  %{
+    $1 = JSContextPtr(new JSContextJSC(context));
+  %}
+} // namespace jsobjects

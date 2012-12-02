@@ -25,11 +25,12 @@ Requirements:
 Preparation - OSX
 .................
 
-Note: on newer OSX versions you have to install automake by yourself.
+Note: on newer OSX versions you have to install automake etc. by yourself.
 This easiest done with Macports.
 
     sudo port install autoconf
     sudo port install automake
+    sudo port install pcre
 
 Clone repository
 ................

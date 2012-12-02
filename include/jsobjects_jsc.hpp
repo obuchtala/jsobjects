@@ -1,8 +1,16 @@
+#ifndef JSOBJECTS_JSC_HPP
+#define JSOBJECTS_JSC_HPP
+
 #include "jsobjects.hpp"
 
 #include <JavaScriptCore/JavaScript.h>
 #include <assert.h>
 
+namespace jsobjects {
+
+class JSObjectJSC;
+class JSArrayJSC;
+  
 class JSValueJSC: public JSValue {
 
 public:
@@ -11,7 +19,7 @@ public:
 
     if(JSValueIsUndefined(context, val)) {
       type = Undefined;
-    } if(JSValueIsNull(context, val)) {
+    } else if(JSValueIsNull(context, val)) {
       type = Null;
     } else if(JSValueIsBoolean(context, val)) {
       type = Boolean;
@@ -19,7 +27,7 @@ public:
       type = Number;
     } else if(JSValueIsString(context, val)) {
       type = String;
-    } else if(JSValueJSC::IsArray(context, val)) {
+    } else if(JSValueJSC::_IsArray(context, val)) {
       type = Array;
     } else if(JSValueIsObject(context, val)) {
       type = Object;
@@ -33,12 +41,12 @@ public:
     value = val;
   }
 
-  ~JSValueJSC() {
+  virtual ~JSValueJSC() {
     // release the persistent reference
     JSValueUnprotect(context, value);
   }
-
-  virtual std::string asString() {
+  
+  inline virtual std::string asString() {
     assert(JSValueIsString(context, value));
 
     JSStringRef jsstring = JSValueToStringCopy(context, value, /* JSValueRef *exception */ 0);
@@ -53,25 +61,35 @@ public:
     return result;
   }
 
-  virtual double asDouble() {
+  inline virtual double asDouble() {
     assert(JSValueIsNumber(context, value));
     return JSValueToNumber(context, value, /* JSValueRef *exception */ 0);
   }
 
-  virtual bool asBool() {
+  inline virtual bool asBool() {
     assert(JSValueIsBoolean(context, value));
     return JSValueToBoolean(context, value);
   }
+  
+  inline virtual JSObjectPtr toObject(JSArrayPtr arr);
 
-  virtual JSValueType getType() { return type; };
+  inline virtual JSValuePtr toValue(JSArrayPtr arr);
 
+  inline virtual JSValuePtr toValue(JSObjectPtr obj);
+
+  inline virtual JSValueType getType() { return type; };
+  
+  inline virtual JSArrayPtr asArray();
+
+  inline virtual JSObjectPtr asObject();
 
   JSContextRef context;
   JSValueRef value;
 
 protected:
 
-  static bool IsArray(JSContextRef context, JSValueRef val);
+  inline bool _IsArray(JSContextRef context, JSValueRef val);
+  inline JSObjectRef _GetArrayClassObj(JSContextRef context);
 
   JSValueType type;
 
@@ -80,6 +98,7 @@ protected:
 class JSObjectJSC: public JSValueJSC, public JSObject {
 
 public:
+
   JSObjectJSC(JSContextRef context, JSObjectRef obj): JSValueJSC(context, obj), object(obj) {}
 
   JSObjectJSC(JSContextRef context, JSValueRef val): JSValueJSC(context, val) {
@@ -98,7 +117,8 @@ public:
 
   virtual void set(const std::string& key, JSValuePtr val) {
     JSStringRef jskey = JSStringCreateWithUTF8CString(key.c_str());
-    JSObjectSetProperty(context, object, jskey, static_cast<JSValueJSC*>(JSOBJECTS_PTR_GET(val))->value, kJSPropertyAttributeNone, /* JSValueRef *exception */ 0);
+    JSValueJSC* jscval = static_cast<JSValueJSC*>(JSOBJECTS_PTR_GET(val));
+    JSObjectSetProperty(context, object, jskey, jscval->value, kJSPropertyAttributeNone, /* JSValueRef *exception */ 0);
     JSStringRelease(jskey);
   }
 
@@ -127,7 +147,7 @@ public:
     JSObjectSetProperty(context, object, jskey, JSValueMakeNumber(context, val), kJSPropertyAttributeNone, /* JSValueRef *exception */ 0);
     JSStringRelease(jskey);
   }
-  
+
   virtual StrVector getKeys() {
     StrVector keys;
     JSPropertyNameArrayRef names_array = JSObjectCopyPropertyNames(context, object);
@@ -142,11 +162,10 @@ public:
     return keys;
   }
 
-protected:
   JSObjectRef object;
 };
 
-class JSArrayJSC: public JSObjectJSC, public JSArray {
+class JSArrayJSC: public JSObjectJSC, public JSArray{
 
 public:
 
@@ -178,7 +197,7 @@ public:
     JSObjectSetPropertyAtIndex(context, object, index, JSValueMakeNumber(context, val), /* JSValueRef *exception */ 0);
   }
 
-  virtual unsigned int length();
+  inline virtual unsigned int length();
 };
 
 class JSContextJSC : public JSContext {
@@ -206,7 +225,8 @@ public:
   }
 
   virtual JSObjectPtr newObject() {
-    return JSObjectPtr(new JSObjectJSC(context, JSObjectMake(context, 0, 0)));
+    JSObjectJSC* obj = new JSObjectJSC(context, JSObjectMake(context, 0, 0));
+    return JSObjectPtr(obj);
   }
 
   virtual JSArrayPtr newArray(unsigned int length) {
@@ -242,6 +262,7 @@ public:
     JSStringRelease(jsstr);
     return result;
   };
+  
 
 private:
 
@@ -250,42 +271,79 @@ private:
 };
 
 
-#ifdef USE_BOOST_SHARED_PTR
+JSObjectRef JSValueJSC::_GetArrayClassObj(JSContextRef context)
+{
+    JSValueRef array_class_val = NULL;
+    static JSStringRef ARRAY =
+        JSStringCreateWithUTF8CString("Array");
 
-#define JSOBJ_JSC_PTR_CAST(type, obj) boost::dynamic_cast< type >(obj)
+    JSObjectRef global = JSContextGetGlobalObject(context);
+    bool has_array_prop = JSObjectHasProperty(context, global, ARRAY);
 
-#else
-
-#define JSOBJ_JSC_PTR_CAST(type, obj) dynamic_cast< type *> ( (JSValueJSC*) obj)
-
-#endif
-
-
-/*static*/ JSArrayPtr JSValue::asArray(JSValuePtr val) {
-  assert(val->getType() == Array);
-  JSArrayPtr arrPtr = JSOBJ_JSC_PTR_CAST(JSArray, val);
-  return arrPtr;
+    if (has_array_prop) {
+      JSValueRef exception = NULL;
+      array_class_val = JSObjectGetProperty(context, global, ARRAY, &exception);
+      if(JSValueIsObject(context, array_class_val)) {
+        JSObjectRef array_ctor = JSValueToObject(context, array_class_val, &exception);
+        if(exception == 0 && JSObjectIsConstructor(context, array_ctor)) {
+          return array_ctor;
+        }
+      }
+    }
+    assert(false);
+    return NULL;
 }
 
-/*static*/ JSObjectPtr JSValue::asObject(JSValuePtr val) {
-  assert(val->getType() == Object || val->getType() == Array);
-  JSObjectPtr objPtr = JSOBJ_JSC_PTR_CAST(JSObject, val);
-  return objPtr;
+bool JSValueJSC::_IsArray(JSContextRef context, JSValueRef value)
+{
+  static JSObjectRef array_class_obj = _GetArrayClassObj(context);
+
+  JSValueRef exception = 0;
+  bool is_array =  JSValueIsInstanceOfConstructor(
+        context, value, array_class_obj, &exception);
+  return (exception == 0 && is_array);
 }
 
-/*static*/ JSObjectPtr JSValue::asObject(JSArrayPtr arr) {
-  JSObjectPtr objPtr = JSOBJ_JSC_PTR_CAST(JSObject, arr);
-  return objPtr;
+unsigned int JSArrayJSC::length() {
+  static JSStringRef LENGTH =
+      JSStringCreateWithUTF8CString("length");
+
+  JSValueRef exception = NULL;
+  JSValueRef _length =
+      JSObjectGetProperty(context, object, LENGTH, &exception);
+
+  JSValueJSC js_length(context, _length);
+  if (exception == 0 && js_length.isNumber()) {
+    double length = js_length.asDouble();
+    return length >= 0 ? static_cast<unsigned int>(length) : 0;
+  }
+
+  return 0;
 }
 
-/*static*/ JSValuePtr JSValue::asValue(JSArrayPtr arr) {
-  JSValuePtr valPtr = JSOBJ_JSC_PTR_CAST(JSValue, arr);
-  return valPtr;
+JSArrayPtr JSValueJSC::asArray() {
+  assert(isArray());
+  return JSArrayPtr(new JSArrayJSC(context, const_cast<JSObjectRef>(value)));
 }
 
-/*static*/ JSValuePtr JSValue::asValue(JSObjectPtr obj) {
-  JSValuePtr valPtr = JSOBJ_JSC_PTR_CAST(JSValue, obj);
-  return valPtr;
+JSObjectPtr JSValueJSC::asObject() {
+  assert(isObject());
+  return JSObjectPtr(new JSObjectJSC(context, const_cast<JSObjectRef>(value)));
 }
 
-#undef JSOBJ_JSC_PTR_CAST
+JSObjectPtr JSValueJSC::toObject(JSArrayPtr arr) {
+  return boost::dynamic_pointer_cast<JSObjectJSC>(arr);
+}
+
+JSValuePtr JSValueJSC::toValue(JSArrayPtr arr) {
+  return boost::dynamic_pointer_cast<JSValueJSC>(arr);
+}
+
+JSValuePtr JSValueJSC::toValue(JSObjectPtr obj) {
+  return boost::dynamic_pointer_cast<JSValueJSC>(obj);
+}  
+
+
+} // namespace jsobjects
+
+#endif //JSOBJECTS_JSC_HPP

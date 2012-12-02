@@ -8,17 +8,27 @@
   $1 = new JSValueV8($input);
 %}
 
-%typemap(freearg) JSValue*
-%{
-   delete $1;
-%}
-
 %typemap(out) JSValue*
 %{
   $result = dynamic_cast<JSValueV8*>(JSOBJECTS_PTR_GET($1))->value;
 %}
 
-%typemap(newfree) JSValue*
+%typemap(in) JSObject*
+%{
+  $1 = new JSObjectV8($input);
+%}
+
+%typemap(out) JSObject*
+%{
+  $result = dynamic_cast<JSObjectV8*>(JSOBJECTS_PTR_GET($1))->value;
+%}
+
+%typemap(freearg) JSValue*, JSObject*, JSArray*
+%{
+   delete $1;
+%}
+
+%typemap(newfree) JSValue*, JSObject*, JSArray*
 %{
    delete $1;
 %}

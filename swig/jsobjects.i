@@ -1,24 +1,18 @@
 
 typedef std::vector<std::string> StrVector;
+
+namespace jsobjects {
+
 class JSValue;
 class JSObject;
 class JSArray;
-
-#ifdef USE_BOOST_SHARED_PTR
 
 typedef boost::shared_ptr< JSValue > JSValuePtr;
 typedef boost::shared_ptr< JSObject > JSObjectPtr;
 typedef boost::shared_ptr< JSArray > JSArrayPtr;
 typedef boost::shared_ptr< JSContext > JSContextPtr;
 
-#else
-
-typedef JSValue* JSValuePtr;
-typedef JSObject* JSObjectPtr;
-typedef JSArray* JSArrayPtr;
-typedef JSContext* JSContextPtr;
-
-#endif
+} // namespace jsobjects
 
 #ifdef SWIG_JAVASCRIPT_V8
 %include <jsobjects_v8.i>
