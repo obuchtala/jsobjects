@@ -9,7 +9,7 @@
 
 namespace jsobjects {
   
-class JSValueCpp: public JSValue {
+class JSValueCpp: virtual public JSValue {
 
 protected:
 
@@ -55,6 +55,11 @@ public:
     return d;
   }
   
+  virtual inline JSArrayPtr asArray();
+
+  virtual inline JSObjectPtr asObject();
+
+  
   virtual inline JSObjectPtr toObject(JSArrayPtr arr);
 
   virtual inline JSValuePtr toValue(JSArrayPtr arr);
@@ -92,7 +97,7 @@ protected:
   JSValueType type;
 };
 
-class JSObjectCpp: public JSValueCpp, public JSObject {
+class JSObjectCpp: public JSValueCpp, virtual public JSObject {
 
 public:
   JSObjectCpp() {
@@ -139,7 +144,7 @@ protected:
   std::map<std::string, JSValuePtr> map;
 };
 
-class JSArrayCpp: public JSObjectCpp, public JSArray {
+class JSArrayCpp: public JSObjectCpp, virtual public JSArray {
 
 public:
 
@@ -253,6 +258,14 @@ private:
   
   JSValuePtr _undefined;
 };
+
+JSArrayPtr JSValueCpp::asArray() {
+  throw "Not supported";
+}
+
+JSObjectPtr JSValueCpp::asObject() {
+  throw "Not supported";
+}
 
 JSObjectPtr JSValueCpp::toObject(JSArrayPtr arr) {
   return boost::dynamic_pointer_cast<JSObjectCpp>(arr);

@@ -43,23 +43,23 @@ public:
 
   virtual ~JSValue() {}
 
-  inline virtual std::string asString() { throw "don't call me!"; };
+  virtual std::string asString() = 0;
 
-  inline virtual double asDouble() { throw "don't call me!"; };
+  virtual double asDouble() = 0;
 
-  inline virtual bool asBool() { throw "don't call me!"; };
+  virtual bool asBool() = 0;
 
-  inline virtual JSValueType getType() { throw "don't call me!"; };
+  virtual JSValueType getType() = 0;
 
-  inline virtual JSArrayPtr asArray() { throw "don't call me!"; };
+  virtual JSArrayPtr asArray() = 0;
 
-  inline virtual JSObjectPtr asObject() { throw "don't call me!"; };
+  virtual JSObjectPtr asObject() = 0;
 
-  inline virtual JSObjectPtr toObject(JSArrayPtr arr) { throw "don't call me!"; };
+  virtual JSObjectPtr toObject(JSArrayPtr arr) = 0;
 
-  inline virtual JSValuePtr toValue(JSArrayPtr arr) { throw "don't call me!"; };
+  virtual JSValuePtr toValue(JSArrayPtr arr) = 0;
 
-  inline virtual JSValuePtr toValue(JSObjectPtr obj) { throw "don't call me!"; };
+  virtual JSValuePtr toValue(JSObjectPtr obj) = 0;
 
   inline int asInteger();
 
@@ -78,25 +78,25 @@ public:
   inline bool isArray();
 };
 
-class JSObject: public JSValue {
+class JSObject: virtual public JSValue {
 
 public:
 
   virtual ~JSObject () {}
 
-  inline virtual JSValuePtr get(const std::string& key) { throw "don't call me!"; };
+  virtual JSValuePtr get(const std::string& key) = 0;
 
-  inline virtual void set(const std::string& key, JSValuePtr val) { throw "don't call me!"; };
+  virtual void set(const std::string& key, JSValuePtr val) = 0;
 
-  inline virtual void set(const std::string& key, const std::string& val) { throw "don't call me!"; };
+  virtual void set(const std::string& key, const std::string& val) = 0;
 
-  inline virtual void set(const std::string& key, const char* val) { throw "don't call me!"; };
+  virtual void set(const std::string& key, const char* val) = 0;
 
-  inline virtual void set(const std::string& key, bool val) { throw "don't call me!"; };
+  virtual void set(const std::string& key, bool val) = 0;
 
-  inline virtual void set(const std::string& key, double val) { throw "don't call me!"; };
+  virtual void set(const std::string& key, double val) = 0;
 
-  inline virtual StrVector getKeys() { throw "don't call me!"; };
+  virtual StrVector getKeys() = 0;
 
   inline void set(const std::string& key, JSArrayPtr val);
 
@@ -104,25 +104,25 @@ public:
 
 };
 
-class JSArray: public JSObject {
+class JSArray: virtual public JSObject {
 
 public:
 
   virtual ~JSArray () {}
 
-  inline virtual unsigned int length() { throw "don't call me!"; };
+  virtual unsigned int length() = 0;
 
-  inline virtual JSValuePtr getAt(unsigned int index) { throw "don't call me!"; };
+  virtual JSValuePtr getAt(unsigned int index) = 0;
 
-  inline virtual void setAt(unsigned int index, JSValuePtr val) { throw "don't call me!"; };
+  virtual void setAt(unsigned int index, JSValuePtr val) = 0;
 
-  inline virtual void setAt(unsigned int index, const std::string& val) { throw "don't call me!"; };
+  virtual void setAt(unsigned int index, const std::string& val) = 0;
 
-  inline virtual void setAt(unsigned int index, const char* val) { throw "don't call me!"; };
+  virtual void setAt(unsigned int index, const char* val) = 0;
 
-  inline virtual void setAt(unsigned int index, bool val) { throw "don't call me!"; };
+  virtual void setAt(unsigned int index, bool val) = 0;
 
-  inline virtual void setAt(unsigned int index, double val) { throw "don't call me!"; };
+  virtual void setAt(unsigned int index, double val) = 0;
 
   inline void setAt(unsigned int index, JSArrayPtr val);
 

@@ -11,7 +11,7 @@ namespace jsobjects {
 class JSObjectJSC;
 class JSArrayJSC;
   
-class JSValueJSC: public JSValue {
+class JSValueJSC: virtual public JSValue {
 
 public:
 
@@ -95,7 +95,7 @@ protected:
 
 };
 
-class JSObjectJSC: public JSValueJSC, public JSObject {
+class JSObjectJSC: public JSValueJSC, virtual public JSObject {
 
 public:
 
@@ -117,7 +117,7 @@ public:
 
   virtual void set(const std::string& key, JSValuePtr val) {
     JSStringRef jskey = JSStringCreateWithUTF8CString(key.c_str());
-    JSValueJSC* jscval = static_cast<JSValueJSC*>(JSOBJECTS_PTR_GET(val));
+    JSValueJSC* jscval = dynamic_cast<JSValueJSC*>(JSOBJECTS_PTR_GET(val));
     JSObjectSetProperty(context, object, jskey, jscval->value, kJSPropertyAttributeNone, /* JSValueRef *exception */ 0);
     JSStringRelease(jskey);
   }
@@ -165,7 +165,7 @@ public:
   JSObjectRef object;
 };
 
-class JSArrayJSC: public JSObjectJSC, public JSArray{
+class JSArrayJSC: public JSObjectJSC, virtual public JSArray {
 
 public:
 
@@ -176,7 +176,7 @@ public:
   }
 
   virtual void setAt(unsigned int index, JSValuePtr val) {
-    JSObjectSetPropertyAtIndex(context, object, index, static_cast<JSValueJSC*>(JSOBJECTS_PTR_GET(val))->value, /* JSValueRef *exception */ 0);
+    JSObjectSetPropertyAtIndex(context, object, index, dynamic_cast<JSValueJSC*>(JSOBJECTS_PTR_GET(val))->value, /* JSValueRef *exception */ 0);
   };
 
   virtual void setAt(unsigned int index, const std::string& val) {
