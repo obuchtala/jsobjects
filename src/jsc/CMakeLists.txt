@@ -3,6 +3,7 @@ set(TARGET jsobjects_jsc)
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
   ${JSC_INCLUDE_DIRS}
+  ${BOOST_INCLUDE_DIRS}  
 )
 
 if (NOT APPLE AND UNIX)

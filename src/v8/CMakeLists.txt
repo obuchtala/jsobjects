@@ -1,5 +1,6 @@
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
+  ${BOOST_INCLUDE_DIRS}
 )
 
 add_library(jsobjects_v8 ${LIBRARY_TYPE}

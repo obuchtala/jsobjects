@@ -7,6 +7,8 @@
 #include <assert.h>
 #include <iostream>
 
+namespace jsobjects {
+  
 std::string JSValueV8_toString(const v8::Handle<v8::Value> val) {
     assert(val->IsString());
   v8::Handle<v8::String> jsstring = val->ToString();
@@ -67,6 +69,16 @@ public:
   }
 
   virtual JSValueType getType() { return type; }
+  
+  inline virtual JSObjectPtr toObject(JSArrayPtr arr);
+
+  inline virtual JSValuePtr toValue(JSArrayPtr arr);
+
+  inline virtual JSValuePtr toValue(JSObjectPtr obj);
+  
+  inline virtual JSArrayPtr asArray();
+
+  inline virtual JSObjectPtr asObject();
 
 public:
 
@@ -249,5 +261,29 @@ JSObjectPtr CreateJSObjectV8(v8::Handle<v8::Object> obj) {
 JSArrayPtr CreateJSArrayV8(v8::Handle<v8::Array> arr) {
   return JSArrayPtr(new JSArrayV8(arr));
 }
+
+JSArrayPtr JSValueV8::asArray() {
+  assert(isArray());
+  return JSArrayPtr(new JSArrayV8(v8::Handle<v8::Array>::Cast(value)));
+}
+
+JSObjectPtr JSValueV8::asObject() {
+  assert(isObject());
+  return JSObjectPtr(new JSObjectV8(v8::Handle<v8::Object>::Cast(value)));
+}
+
+JSObjectPtr JSValueV8::toObject(JSArrayPtr arr) {
+  return boost::dynamic_pointer_cast<JSObjectV8>(arr);
+}
+
+JSValuePtr JSValueV8::toValue(JSArrayPtr arr) {
+  return boost::dynamic_pointer_cast<JSValueV8>(arr);
+}
+
+JSValuePtr JSValueV8::toValue(JSObjectPtr obj) {
+  return boost::dynamic_pointer_cast<JSValueV8>(obj);
+}  
+
+} // namespace jsobjects
 
 #endif // JSOBJECTS_V8_HPP

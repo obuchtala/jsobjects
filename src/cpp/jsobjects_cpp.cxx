@@ -6,6 +6,7 @@
 #include <rapidjson/reader.h>
 
 #include <stack>
+#include <sstream>
 
 using rapidjson::UTF8;
 using rapidjson::GenericStringBuffer;
@@ -54,10 +55,10 @@ void JSValueCpp_toJSON(Writer< GenericStringBuffer< UTF8<char> > > &w, JSValuePt
       w.String(val->asString().c_str());
       break;
     case JSValue::Array:
-      JSValueCpp_toJSON_Array(w, JSValue::asArray(val));
+      JSValueCpp_toJSON_Array(w, val->asArray());
       break;
     case JSValue::Object:
-      JSValueCpp_toJSON_Object(w, JSValue::asObject(val));
+      JSValueCpp_toJSON_Object(w, val->asObject());
       break;
   }
 }
@@ -77,7 +78,7 @@ private:
 
 public:
 
-  JSObjectReaderHandler(JSContextCpp& context): context(context), root(0) {}
+  JSObjectReaderHandler(JSContextCpp& context): context(context) {}
 
   void append(JSValuePtr val) {
     StackElem *tos = objStack.empty()? 0 : objStack.top();
@@ -154,7 +155,7 @@ public:
           it != elem->obj.end(); ++it) {
       obj->set(it->first, it->second);
     }
-    append(JSValue::asValue(obj));
+    append(obj->toValue(obj));
     delete elem;
   }
 
@@ -172,7 +173,7 @@ public:
           it != elem->obj.end(); ++it) {
       array->setAt(idx++, it->second);
     }
-    append(JSValue::asValue(array));
+    append(array->toValue(array));
     delete elem;
   }
 
@@ -195,8 +196,6 @@ std::string JSContextCpp::toJson(JSValuePtr val)
   JSValueCpp_toJSON(w, val);
   return strbuf.GetString();
 }
-
-#include <sstream>
 
 class StringStream {
 
