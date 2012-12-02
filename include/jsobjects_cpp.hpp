@@ -45,7 +45,7 @@ public:
   ~JSValueCpp() {
   }
 
-  virtual  std::string asString() {
+  virtual std::string asString() {
     assert(type == String);
     return str;
   }
@@ -55,11 +55,11 @@ public:
     return d;
   }
   
-  virtual  JSObjectPtr toObject(JSArrayPtr arr);
+  virtual inline JSObjectPtr toObject(JSArrayPtr arr);
 
-  virtual  JSValuePtr toValue(JSArrayPtr arr);
+  virtual inline JSValuePtr toValue(JSArrayPtr arr);
 
-  virtual  JSValuePtr toValue(JSObjectPtr obj);
+  virtual inline JSValuePtr toValue(JSObjectPtr obj);
 
   virtual  bool asBool() {
     assert(type == Boolean);
