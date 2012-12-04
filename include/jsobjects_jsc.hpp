@@ -10,14 +10,17 @@ namespace jsobjects {
 
 class JSObjectJSC;
 class JSArrayJSC;
-  
+
 class JSValueJSC: virtual public JSValue {
 
 public:
 
   JSValueJSC(JSContextRef context, JSValueRef val): context(context) {
 
-    if(JSValueIsUndefined(context, val)) {
+    if(val == 0) {
+      val == JSValueMakeNull(context);
+      type = Null;
+    } else if(JSValueIsUndefined(context, val)) {
       type = Undefined;
     } else if(JSValueIsNull(context, val)) {
       type = Null;
@@ -45,7 +48,7 @@ public:
     // release the persistent reference
     JSValueUnprotect(context, value);
   }
-  
+
   inline virtual std::string asString() {
     assert(JSValueIsString(context, value));
 
@@ -70,7 +73,7 @@ public:
     assert(JSValueIsBoolean(context, value));
     return JSValueToBoolean(context, value);
   }
-  
+
   inline virtual JSObjectPtr toObject(JSArrayPtr arr);
 
   inline virtual JSValuePtr toValue(JSArrayPtr arr);
@@ -78,7 +81,7 @@ public:
   inline virtual JSValuePtr toValue(JSObjectPtr obj);
 
   inline virtual JSValueType getType() { return type; };
-  
+
   inline virtual JSArrayPtr asArray();
 
   inline virtual JSObjectPtr asObject();
@@ -204,7 +207,8 @@ class JSContextJSC : public JSContext {
 
 public:
 
-  JSContextJSC(JSContextRef context) : context(context) {}
+  JSContextJSC(JSContextRef context) : context(context) {
+  }
 
   virtual JSValuePtr newString(const std::string& val) {
     JSStringRef jsval = JSStringCreateWithUTF8CString(val.c_str());
@@ -243,7 +247,8 @@ public:
   };
 
   virtual JSValuePtr undefined() {
-    return JSValuePtr(new JSValueJSC(context, JSValueMakeUndefined(context)));
+    JSValueRef undefined = JSValueMakeUndefined(context);
+    return JSValuePtr(new JSValueJSC(context, undefined));
   };
 
   virtual std::string toJson(JSValuePtr val) {
@@ -258,11 +263,16 @@ public:
 
   virtual JSValuePtr fromJson(const std::string& str) {
     JSStringRef jsstr = JSStringCreateWithUTF8CString(str.c_str());
-    JSValuePtr result(new JSValueJSC(context, JSValueMakeFromJSONString(context, jsstr)));
+    JSValueRef val = JSValueMakeFromJSONString(context, jsstr);
+
+    // TODO: throw exception
+    if (val == 0) return undefined();
+
+    JSValuePtr result(new JSValueJSC(context, val));
     JSStringRelease(jsstr);
     return result;
   };
-  
+
 
 private:
 
@@ -341,7 +351,7 @@ JSValuePtr JSValueJSC::toValue(JSArrayPtr arr) {
 
 JSValuePtr JSValueJSC::toValue(JSObjectPtr obj) {
   return boost::dynamic_pointer_cast<JSValueJSC>(obj);
-}  
+}
 
 
 } // namespace jsobjects
