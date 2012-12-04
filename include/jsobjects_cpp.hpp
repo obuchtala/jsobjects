@@ -8,58 +8,69 @@
 #include "jsobjects.hpp"
 
 namespace jsobjects {
-  
+
 class JSValueCpp: virtual public JSValue {
 
 protected:
 
-  JSValueCpp() {}
+  class _Data {
+
+  public:
+
+    std::string str;
+    bool b;
+    double d;
+    std::map<std::string, JSValuePtr> map;
+    std::vector<JSValuePtr> vector;
+  };
+
+  typedef boost::shared_ptr<_Data> DataPtr;
+
+  JSValueCpp(): data(new _Data()) { }
+
+  JSValueCpp(JSValueType type): data(new _Data()), type(type) { }
 
 public:
 
-  JSValueCpp(const std::string& val) {
+  JSValueCpp(const std::string& val): data(new _Data()) {
       type = String;
-      str = val;
+      data->str = val;
   }
 
-  JSValueCpp(const char* val) {
+  JSValueCpp(const char* val): data(new _Data()) {
     type = String;
-    str = val;
+    data->str = val;
   }
 
-  explicit JSValueCpp(const bool val) {
+  explicit JSValueCpp(const bool val): data(new _Data()) {
       type = Boolean;
-      b = val;
+      data->b = val;
   }
 
-  JSValueCpp(const double val) {
+  JSValueCpp(const double val): data(new _Data()) {
       type = Number;
-      d = val;
+      data->d = val;
   }
 
-  JSValueCpp(JSObjectPtr val) {
-    type = Object;
-    obj = val;
-  }
+  //JSValueCpp(JSObjectPtr val);
 
   ~JSValueCpp() {
   }
 
   virtual std::string asString() {
     assert(type == String);
-    return str;
+    return data->str;
   }
 
   virtual  double asDouble() {
     assert(type == Number);
-    return d;
+    return data->d;
   }
-  
+
   virtual inline JSArrayPtr asArray();
 
   virtual inline JSObjectPtr asObject();
 
-  
   virtual inline JSObjectPtr toObject(JSArrayPtr arr);
 
   virtual inline JSValuePtr toValue(JSArrayPtr arr);
@@ -68,7 +79,7 @@ public:
 
   virtual  bool asBool() {
     assert(type == Boolean);
-    return b;
+    return data->b;
   }
 
   virtual  JSValueType getType() {
@@ -76,72 +87,64 @@ public:
   };
 
   JSValuePtr  null() {
-    JSValueCpp *_null = new JSValueCpp();
-    _null->type = Null;
-    return JSValuePtr(_null);
+    static JSValuePtr _null(new JSValueCpp(Null));
+    return _null;
   }
 
   JSValuePtr  undefined() {
-    JSValueCpp *_undefined = new JSValueCpp();
-    _undefined->type = Undefined;
-    return JSValuePtr(_undefined);
+    static JSValuePtr _undefined(new JSValueCpp(Undefined));
+    return _undefined;
   }
 
 protected:
 
-  std::string str;
-  bool b;
-  double d;
-  JSObjectPtr obj;
-
   JSValueType type;
+  DataPtr data;
 };
 
 class JSObjectCpp: public JSValueCpp, virtual public JSObject {
 
 public:
-  JSObjectCpp() {
-    type = Object;
+
+  JSObjectCpp(): JSValueCpp(Object) { }
+
+  JSObjectCpp(DataPtr data): JSValueCpp(Object) {
+    this->data = data;
   }
 
   virtual JSValuePtr get(const std::string& key) {
-    return map[key];
+    return data->map[key];
   }
 
   virtual void set(const std::string& key, JSValuePtr val) {
-    map[key] = val;
+    data->map[key] = val;
   }
 
   virtual void set(const std::string& key, const std::string& val) {
-    map[key] = JSValuePtr(new JSValueCpp(val));
+    data->map[key] = JSValuePtr(new JSValueCpp(val));
   }
 
   virtual void set(const std::string& key, const char* val) {
-    map[key] = JSValuePtr(new JSValueCpp(std::string(val)));
+    data->map[key] = JSValuePtr(new JSValueCpp(std::string(val)));
   }
 
   virtual void set(const std::string& key, bool val) {
-    map[key] = JSValuePtr(new JSValueCpp(val));
+    data->map[key] = JSValuePtr(new JSValueCpp(val));
   }
 
   virtual void set(const std::string& key, double val) {
-    map[key] = JSValuePtr(new JSValueCpp(val));
-  }
-
-  static JSObjectPtr Create() {
-    return JSObjectPtr(new JSObjectCpp());
+    data->map[key] = JSValuePtr(new JSValueCpp(val));
   }
 
   virtual StrVector getKeys() {
     StrVector keys;
-    for(std::map<std::string, JSValuePtr>::iterator it = map.begin(); it != map.end(); ++it) {
+    for(std::map<std::string, JSValuePtr>::iterator it = data->map.begin();
+	it != data->map.end(); ++it) {
       keys.push_back(it->first);
     }
     return keys;
   }
 
-protected:
-  std::map<std::string, JSValuePtr> map;
 };
 
 class JSArrayCpp: public JSObjectCpp, virtual public JSArray {
@@ -150,42 +153,44 @@ public:
 
   JSArrayCpp(int length) {
     type = Array;
-    vector.resize(length);
+    data->vector.resize(length);
     for(size_t idx = 0; idx < length; ++idx) {
-      vector[idx] = undefined();
+      data->vector[idx] = undefined();
     }
   }
 
+  JSArrayCpp(DataPtr data) {
+    type = Array;
+    this->data = data;
+  }
+
   virtual JSValuePtr getAt(unsigned int index) {
-    return vector[index];
+    return data->vector[index];
   }
 
   virtual void setAt(unsigned int index, JSValuePtr val) {
-    vector[index] = val;
+    data->vector[index] = val;
   };
 
   virtual void setAt(unsigned int index, const std::string& val) {
-    vector[index] = JSValuePtr(new JSValueCpp(val));
+    data->vector[index] = JSValuePtr(new JSValueCpp(val));
   }
 
   virtual void setAt(unsigned int index, const char* val) {
-    vector[index] = JSValuePtr(new JSValueCpp(std::string(val)));
+    data->vector[index] = JSValuePtr(new JSValueCpp(std::string(val)));
   }
 
   virtual void setAt(unsigned int index, bool val) {
-    vector[index] = JSValuePtr(new JSValueCpp(val));
+    data->vector[index] = JSValuePtr(new JSValueCpp(val));
   }
 
   virtual void setAt(unsigned int index, double val) {
-    vector[index] = JSValuePtr(new JSValueCpp(val));
+    data->vector[index] = JSValuePtr(new JSValueCpp(val));
   }
 
   virtual unsigned int length() {
-    return vector.size();
+    return data->vector.size();
   }
-
-protected:
-  std::vector<JSValuePtr> vector;
 };
 
 class JSContextCpp : public JSContext {
@@ -255,16 +260,16 @@ public:
 private:
 
   JSValuePtr _null;
-  
+
   JSValuePtr _undefined;
 };
 
 JSArrayPtr JSValueCpp::asArray() {
-  throw "Not supported";
+  return JSArrayPtr(new JSArrayCpp(data));
 }
 
 JSObjectPtr JSValueCpp::asObject() {
-  throw "Not supported";
+  return JSObjectPtr(new JSObjectCpp(data));
 }
 
 JSObjectPtr JSValueCpp::toObject(JSArrayPtr arr) {

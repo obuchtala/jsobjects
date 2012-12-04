@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <jsobjects_cpp.hpp>
+using namespace jsobjects;
 
 class JSObjectCppFixture: public testing::Test { 
 
@@ -90,7 +91,7 @@ TEST_F(JSObjectCppFixture, Create_Nested_Array)
 
   JSValuePtr _val = arr1->getAt(0);
   EXPECT_EQ(JSValue::Array, _val->getType());
-  JSArrayPtr _arr2 = JSValue::asArray(_val);
+  JSArrayPtr _arr2 = _val->asArray();
   
   EXPECT_EQ(JSValue::String, _arr2->getAt(0)->getType());
   EXPECT_EQ(JSValue::Number, _arr2->getAt(1)->getType());
@@ -104,7 +105,7 @@ TEST_F(JSObjectCppFixture, Serialize_Simple_Object)
   obj->set("b", 2.0);
   obj->set("c", false);
 
-  const std::string &json = context.toJson(JSValue::asValue(obj));
+  const std::string &json = context.toJson(obj->toValue(obj));
   EXPECT_STREQ("{\"a\":\"bla\",\"b\":2,\"c\":false}", json.c_str());
 }
 
@@ -116,7 +117,7 @@ TEST_F(JSObjectCppFixture, Serialize_Simple_Array)
   array->setAt(1, 2.0);
   array->setAt(2, false);
 
-  const std::string &json = context.toJson(JSValue::asValue(array));
+  const std::string &json = context.toJson(array->toValue(array));
   EXPECT_STREQ("[\"bla\",2,false]", json.c_str());
 }
 
@@ -134,7 +135,7 @@ TEST_F(JSObjectCppFixture, Serialize_Nested_Object)
   obj->set("b", 2.0);
   obj->set("c", false);
 
-  const std::string &json = context.toJson(JSValue::asValue(obj));
+  const std::string &json = context.toJson(obj->toValue(obj));
   EXPECT_STREQ("{\"a\":{\"bar\":1,\"foo\":2},\"b\":2,\"c\":false}", json.c_str());
 }
 
@@ -149,7 +150,7 @@ TEST_F(JSObjectCppFixture, Serialize_Nested_Array)
   
   obj->set("a", arr);
 
-  const std::string &json = context.toJson(JSValue::asValue(obj));
+  const std::string &json = context.toJson(obj->toValue(obj));
   EXPECT_STREQ("{\"a\":[1,2]}", json.c_str());
 }
 
@@ -160,7 +161,7 @@ TEST_F(JSObjectCppFixture, Deserialize_Simple_Object)
   JSValuePtr val = context.fromJson(data);
   ASSERT_TRUE(val->isObject());  
   
-  JSObjectPtr obj = JSValue::asObject(val);
+  JSObjectPtr obj = val->asObject();
   JSValuePtr val_a = obj->get("a");
   JSValuePtr val_b = obj->get("b");
   JSValuePtr val_c = obj->get("c");
@@ -181,7 +182,7 @@ TEST_F(JSObjectCppFixture, Deserialize_Simple_Array)
   JSValuePtr val = context.fromJson(data);
   ASSERT_TRUE(val->isArray());  
   
-  JSArrayPtr arr = JSValue::asArray(val);
+  JSArrayPtr arr = val->asArray();
   JSValuePtr val_a = arr->getAt(0);
   JSValuePtr val_b = arr->getAt(1);
   JSValuePtr val_c = arr->getAt(2);
@@ -202,11 +203,11 @@ TEST_F(JSObjectCppFixture, Deserialize_Nested_Object)
   JSValuePtr val = context.fromJson(data);
   ASSERT_TRUE(val->isObject());  
   
-  JSObjectPtr obj = JSValue::asObject(val);
+  JSObjectPtr obj = val->asObject();
   JSValuePtr val_a = obj->get("a");
 
   ASSERT_TRUE(val_a->isObject());
-  JSObjectPtr obj2 = JSValue::asObject(val_a);
+  JSObjectPtr obj2 = val_a->asObject();
 
   JSValuePtr val_1 = obj2->get("bar");
   JSValuePtr val_2 = obj2->get("foo");
@@ -221,11 +222,11 @@ TEST_F(JSObjectCppFixture, Deserialize_Nested_Array)
   const char* data = "[[1,2]]";
   JSValuePtr val = context.fromJson(data);
   ASSERT_TRUE(val->isArray());  
-  JSArrayPtr arr1 = JSValue::asArray(val);
+  JSArrayPtr arr1 = val->asArray();
   
   val = arr1->getAt(0);
   ASSERT_TRUE(val->isArray());
-  JSArrayPtr arr2 = JSValue::asArray(val);
+  JSArrayPtr arr2 = val->asArray();
 
   JSValuePtr val_1 = arr2->getAt(0);
   JSValuePtr val_2 = arr2->getAt(1);
