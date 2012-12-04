@@ -23,7 +23,7 @@ v8::Handle<v8::String> JSValueV8_fromString(const std::string& s) {
    return v8::String::New(s.c_str());
 }
 
-class JSValueV8: public JSValue {
+class JSValueV8: public virtual JSValue {
 
 public:
 
@@ -90,7 +90,7 @@ protected:
 
 };
 
-class JSObjectV8: public JSObject, public JSValueV8 {
+class JSObjectV8: public JSValueV8, public virtual JSObject {
 
 public:
   JSObjectV8(v8::Handle<v8::Object> obj): JSValueV8(obj), object(obj) {}
@@ -105,7 +105,7 @@ public:
   }
 
   virtual void set(const std::string& key, JSValuePtr val) {
-    object->Set(v8::String::New(key.c_str()), static_cast<JSValueV8*>(JSOBJECTS_PTR_GET(val))->value);
+    object->Set(v8::String::New(key.c_str()), dynamic_cast<JSValueV8*>(JSOBJECTS_PTR_GET(val))->value);
   }
 
   virtual void set(const std::string& key, const std::string& val) {
@@ -137,7 +137,7 @@ protected:
   v8::Handle<v8::Object> object;
 };
 
-class JSArrayV8: public JSObjectV8, public JSArray {
+class JSArrayV8: public JSObjectV8, public virtual JSArray {
 
 public:
 
@@ -152,7 +152,7 @@ public:
   }
 
   virtual void setAt(unsigned int index, JSValuePtr val) {
-    array->Set(index, static_cast<JSValueV8*>(JSOBJECTS_PTR_GET(val))->value);
+    array->Set(index, dynamic_cast<JSValueV8*>(JSOBJECTS_PTR_GET(val))->value);
   };
 
   virtual void setAt(unsigned int index, const char *val) {
