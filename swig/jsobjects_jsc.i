@@ -2,6 +2,22 @@
 #include <jsobjects_jsc.hpp>
 %}
 
+%wrapper %{
+JSContextPtr SWIGJSC_theContext;
+
+extern "C" bool SWIGJSC_INIT (JSGlobalContextRef context);
+#define CONCAT(A,B) A##B
+#define JSOBJECTS(A) CONCAT(A,_jsobjects)
+
+extern "C" bool JSOBJECTS(SWIGJSC_INIT) (JSGlobalContextRef context)
+{
+  SWIGJSC_theContext = JSContextPtr(new JSContextJSC(context));
+  return SWIGJSC_INIT(context);
+}
+#undef CONCAT
+#undef JSOBJECTS
+%}
+
 namespace jsobjects {
 
   %typemap(in) JSValuePtr
@@ -24,8 +40,11 @@ namespace jsobjects {
     $result = dynamic_cast<JSObjectJSC*>(JSOBJECTS_PTR_GET($1))->value;
   %}
 
-  %typemap(in) JSContextPtr
+  %typemap(in) JSContextPtr, boost::shared< jsobjects::JSContext >
   %{
-    $1 = JSContextPtr(new JSContextJSC(context));
+    $1 = SWIGJSC_theContext;
   %}
+
+  %typemap(check) JSContextPtr {}
+
 } // namespace jsobjects
