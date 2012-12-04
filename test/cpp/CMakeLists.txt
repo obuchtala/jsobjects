@@ -16,7 +16,6 @@ add_executable(jsobjects.cpp.unit
 target_link_libraries(jsobjects.cpp.unit
   jsobjects_cpp
   ${GTEST_LIBS}
-  ${JSC}
 )
 
 add_test(
