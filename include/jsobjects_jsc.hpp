@@ -18,7 +18,7 @@ public:
   JSValueJSC(JSContextRef context, JSValueRef val): context(context) {
 
     if(val == 0) {
-      val == JSValueMakeNull(context);
+      val = JSValueMakeNull(context);
       type = Null;
     } else if(JSValueIsUndefined(context, val)) {
       type = Undefined;

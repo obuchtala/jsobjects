@@ -28,7 +28,7 @@ protected:
 
   JSValueCpp(): data(new _Data()) { }
 
-  JSValueCpp(JSValueType type): data(new _Data()), type(type) { }
+  JSValueCpp(JSValueType type): type(type), data(new _Data()) { }
 
 public:
 

@@ -126,7 +126,7 @@ public:
 
   inline void setAt(unsigned int index, JSArrayPtr val);
 
-  inline void set(unsigned int index, JSObjectPtr val);
+  inline void setAt(unsigned int index, JSObjectPtr val);
 };
 
 
@@ -203,7 +203,7 @@ void JSArray::setAt(unsigned int index, JSArrayPtr val) {
   setAt(index, toValue(val));
 };
 
-void JSArray::set(unsigned int index, JSObjectPtr val) {
+void JSArray::setAt(unsigned int index, JSObjectPtr val) {
   setAt(index, toValue(val));
 };
 
