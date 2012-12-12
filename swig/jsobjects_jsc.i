@@ -40,6 +40,16 @@ namespace jsobjects {
     $result = dynamic_cast<JSObjectJSC*>(JSOBJECTS_PTR_GET($1))->value;
   %}
 
+  %typemap(in) JSArrayPtr
+  %{
+    $1 = JSArrayPtr(new JSArrayJSC(context, $input));
+  %}
+
+  %typemap(out) JSArrayPtr
+  %{
+    $result = dynamic_cast<JSArrayJSC*>(JSOBJECTS_PTR_GET($1))->value;
+  %}
+
   %typemap(in) JSContextPtr, boost::shared< jsobjects::JSContext >
   %{
     $1 = SWIGJSC_theContext;
