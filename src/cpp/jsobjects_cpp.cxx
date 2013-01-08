@@ -222,7 +222,7 @@ public:
   }
 
   Ch Peek() {
-    ss->peek();
+    return ss->peek();
   }
 
   Ch Take() {
