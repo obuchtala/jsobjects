@@ -308,6 +308,11 @@ bool JSValueJSC::_IsArray(JSContextRef context, JSValueRef value)
 {
   static JSObjectRef array_class_obj = _GetArrayClassObj(context);
 
+  if(array_class_obj == 0 || context == 0 || value == 0) {
+    /* oh oh ... that is bad */
+    return false;
+  }
+
   JSValueRef exception = 0;
   bool is_array =  JSValueIsInstanceOfConstructor(
         context, value, array_class_obj, &exception);
