@@ -53,9 +53,9 @@ public:
     assert(JSValueIsString(context, value));
 
     JSStringRef jsstring = JSValueToStringCopy(context, value, /* JSValueRef *exception */ 0);
-    unsigned int length = JSStringGetLength(jsstring) + 1;
-    char *cstr = new char[length];
-    JSStringGetUTF8CString(jsstring, cstr, length);
+    size_t len = JSStringGetMaximumUTF8CStringSize(jsstring);
+    char *cstr = new char[len];
+    JSStringGetUTF8CString(jsstring, cstr, len);
     std::string result(cstr);
 
     JSStringRelease(jsstring);
