@@ -238,7 +238,9 @@ public:
     for(size_t idx=0; idx < length; ++idx) {
       arguments[idx] = JSValueMakeUndefined(context);
     }
-    JSArrayPtr result(new JSArrayJSC(context, JSObjectMakeArray(context, length, arguments, 0)));
+    JSObjectRef obj = JSObjectMakeArray(context, length, arguments, 0);
+    JSArrayPtr result(new JSArrayJSC(context, obj));
+    delete[] arguments;
     return result;
   }
 
