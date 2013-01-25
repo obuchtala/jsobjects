@@ -8,7 +8,7 @@
 #include <iostream>
 
 namespace jsobjects {
-  
+
 std::string JSValueV8_toString(const v8::Handle<v8::Value> val) {
     assert(val->IsString());
   v8::Handle<v8::String> jsstring = val->ToString();
@@ -69,13 +69,13 @@ public:
   }
 
   virtual JSValueType getType() { return type; }
-  
+
   inline virtual JSObjectPtr toObject(JSArrayPtr arr);
 
   inline virtual JSValuePtr toValue(JSArrayPtr arr);
 
   inline virtual JSValuePtr toValue(JSObjectPtr obj);
-  
+
   inline virtual JSArrayPtr asArray();
 
   inline virtual JSObjectPtr asObject();
@@ -131,6 +131,8 @@ public:
     for(size_t i = 0; i<arr->Length(); ++i) {
       keys.push_back(JSValueV8_toString(arr->Get(i)->ToString()));
     }
+
+    return keys;
   }
 
 protected:
@@ -282,7 +284,7 @@ JSValuePtr JSValueV8::toValue(JSArrayPtr arr) {
 
 JSValuePtr JSValueV8::toValue(JSObjectPtr obj) {
   return boost::dynamic_pointer_cast<JSValueV8>(obj);
-}  
+}
 
 } // namespace jsobjects
 
