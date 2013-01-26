@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 FIND_PACKAGE(Boost)
-if(Boost-NOTFOUND)
+if(NOT Boost_FOUND)
   include(BoostMinimal)
 endif()
 

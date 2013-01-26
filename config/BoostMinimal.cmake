@@ -36,4 +36,6 @@ if (DOWNLOAD_EXTERNALS)
 
 endif()
 
+set(Boost-FOUND ON)
+set(Boost_INCLUDE_DIR ${DOWNLOAD_DIR})
 set(Boost_INCLUDE_DIRS ${DOWNLOAD_DIR})
