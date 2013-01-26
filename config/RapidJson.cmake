@@ -1,7 +1,7 @@
 set(DOWNLOAD_DIR ${EXTERNALS_DIR}/rapidjson)
-set (RAPIDJSON_INCLUDED ON CACHE INTERNAL "" FORCE)
 
 if (NOT RAPIDJSON_INCLUDED AND DOWNLOAD_EXTERNALS)
+  set (RAPIDJSON_INCLUDED ON CACHE INTERNAL "" FORCE)
 
   # Configure GoogleTest library
   # ----------------------------
