@@ -1,7 +1,7 @@
 include_directories(
   ${SUBSTANCE_EXTENSION_SOURCE_DIR}
   ${GTEST_INCLUDE_DIRS}
-  ${BOOST_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
   ${jsobjects_INCLUDE_DIRS}
 )
 
