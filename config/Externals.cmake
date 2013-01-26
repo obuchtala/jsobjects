@@ -1,6 +1,9 @@
 include(ExternalProject)
 
-FIND_PACKAGE(Boost REQUIRED)
+FIND_PACKAGE(Boost)
+if(Boost-NOTFOUND)
+  include(BoostMinimal)
+endif()
 
 if (ENABLE_TESTS)
   include(GTest-1.6)
