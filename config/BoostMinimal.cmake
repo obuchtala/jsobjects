@@ -1,6 +1,6 @@
 set(DOWNLOAD_DIR ${EXTERNALS_DIR}/boost)
 
-if (DOWNLOAD_EXTERNALS)
+if (NOT EXISTS ${DOWNLOAD_DIR} AND DOWNLOAD_EXTERNALS)
 
   # Configure boost
   # ---------------
@@ -11,7 +11,7 @@ if (DOWNLOAD_EXTERNALS)
     DOWNLOAD_DIR ${DOWNLOAD_DIR}
     TMP_DIR ${DOWNLOAD_DIR}/tmp
     STAMP_DIR ${DOWNLOAD_DIR}/stamp
-    UPDATE_COMMAND "" svn update
+    UPDATE_COMMAND svn update
       ${DOWNLOAD_DIR}/boost/config
       ${DOWNLOAD_DIR}/boost/detail
       ${DOWNLOAD_DIR}/boost/exception
@@ -36,6 +36,4 @@ if (DOWNLOAD_EXTERNALS)
 
 endif()
 
-set(Boost-FOUND ON)
-set(Boost_INCLUDE_DIR ${DOWNLOAD_DIR})
-set(Boost_INCLUDE_DIRS ${DOWNLOAD_DIR})
+set(Boost_INCLUDE_DIRS ${EXTERNALS_DIR}/boost)
