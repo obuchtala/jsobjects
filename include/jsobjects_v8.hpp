@@ -10,10 +10,11 @@
 namespace jsobjects {
 
 std::string JSValueV8_toString(const v8::Handle<v8::Value> val) {
-    assert(val->IsString());
   v8::Handle<v8::String> jsstring = val->ToString();
-  char *cstr = new char[jsstring->Utf8Length()];
-  jsstring->WriteUtf8(cstr);
+  int buflen = jsstring->Utf8Length()+1;
+  char *cstr = new char[buflen];
+  jsstring->WriteUtf8(cstr, buflen);
+  cstr[buflen-1] = 0;
   std::string result(cstr);
   delete[] cstr;
   return result;
