@@ -104,6 +104,8 @@ fi
 # build jsobjects
 cd $PROJECT_DIR
 
+git pull
+
 if [ ! -d build ]; then
 	mkdir build
 fi
