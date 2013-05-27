@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+echo "Executing $(pwd)/update.sh"
 
 PROJECT_DIR=$(pwd)
 
@@ -17,7 +19,7 @@ ENABLE_TESTING=no
 ENABLE_CPP=no
 VERBOSE=0
 
-function readopts {
+readopts() {
   while ((OPTIND<=$#)); do
     if getopts ":d:t:c:hv" opt; then
       case $opt in
